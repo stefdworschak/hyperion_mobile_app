@@ -16,6 +16,7 @@ package com.example.hyperionapp;
  * limitations under the License.
  */
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -26,6 +27,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import com.example.hyperionapp.ui.main.CodeFragment;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -36,7 +38,8 @@ import androidx.work.WorkManager;
 public class MyFirebaseService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
-
+    private static final int OPEN_CODE_INTENT = 100;
+    private static String session_id = "";
     /**
      * Called when message is received.
      *
@@ -68,6 +71,8 @@ public class MyFirebaseService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            session_id = remoteMessage.getData().get("session_id");
+            Log.d(TAG, "Session ID from message: " + session_id);
 
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use WorkManager.
@@ -145,9 +150,15 @@ public class MyFirebaseService extends FirebaseMessagingService {
      */
     private void sendNotification(String messageBody) {
         Intent intent = new Intent(this, MainActivity.class);
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+
+        Intent intent2 = new Intent(this, CodeFragment.class);
+        intent2.putExtra("session_id", session_id);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent2,
                 PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent openCodeIntent =PendingIntent.getBroadcast(getApplicationContext(), OPEN_CODE_INTENT, intent2, 0);
+
 
         String channelId = getString(R.string.default_notification_channel_id);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -156,6 +167,8 @@ public class MyFirebaseService extends FirebaseMessagingService {
                         .setSmallIcon(R.drawable.ic_stat_ic_notification)
                         .setContentTitle(getString(R.string.fcm_message))
                         .setContentText(messageBody)
+                        .addAction(R.drawable.ic_send_black_24dp, "Share", openCodeIntent)
+                        .setStyle(new NotificationCompat.BigTextStyle())
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);

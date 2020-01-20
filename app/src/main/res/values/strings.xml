@@ -42,6 +42,8 @@
         <string name="fcm_message">FCM Message</string>
     <string name="checkin">Check In</string>
     <string name="token">Get Token</string>
+    <string name="confirm_code">Confirm</string>
+    <string name="btnCreateKeys">Create New Public/Primary Keys</string>
 
     <string-array name="days_array">
         <item>01</item>

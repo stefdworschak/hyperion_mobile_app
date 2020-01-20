@@ -124,10 +124,11 @@ public class CheckinFragment extends Fragment {
                                     String symptoms_duration = "";
                                     String pain_scale = "";
                                     String pre_conditions = "";
+                                    int session_shared = 0;
                                     Log.d("Session ID", sessionID);
-                                    Checkin checkin = new Checkin(sessionID, symptoms, symptoms_duration, pain_scale, pre_conditions);
+                                    Checkin checkin = new Checkin(sessionID, symptoms, symptoms_duration, pain_scale, pre_conditions, session_shared);
+                                    //Log.d(TAG, ""+checkin.getSession_shared());
                                     setDocument(db, checkin);
-                                    //mDatabase.child("checkins").child(sessionID).setValue(checkin);
                                 }
                             }
                         });

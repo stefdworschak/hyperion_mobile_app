@@ -19,12 +19,14 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.hyperionapp.DatePickerFragment;
+import com.example.hyperionapp.EncryptionClass;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.SqliteFeeder;
 import com.example.hyperionapp.SqliteHelper;
 
 import org.w3c.dom.Text;
 
+import java.security.KeyPair;
 import java.util.Calendar;
 
 
@@ -46,6 +48,17 @@ public class DetailsFragment extends Fragment {
         Spinner spMonths = (Spinner) v.findViewById(R.id.spinner2);
         Spinner spYears = (Spinner) v.findViewById(R.id.spinner3);
         Button btnSave = (Button) v.findViewById(R.id.button);
+        Button btnCreateKeys = (Button) v.findViewById(R.id.button4);
+
+        btnCreateKeys.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EncryptionClass encryption = new EncryptionClass();
+                KeyPair keys = encryption.generateKeys();
+                String publicKey = keys.getPublic().toString();
+                Toast.makeText(getContext(), publicKey, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
