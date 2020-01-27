@@ -1,33 +1,34 @@
 package com.example.hyperionapp.ui.main;
 
 import android.app.Activity;
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
-import com.example.hyperionapp.DatePickerFragment;
 import com.example.hyperionapp.EncryptionClass;
+import com.example.hyperionapp.MainActivity;
+import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
-import com.example.hyperionapp.SqliteFeeder;
-import com.example.hyperionapp.SqliteHelper;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
-import org.w3c.dom.Text;
-
-import java.security.KeyPair;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 
 /*
@@ -38,25 +39,35 @@ import java.util.Calendar;
  */
 
 public class DetailsFragment extends Fragment {
+    DatePickerDialog picker;
+    EditText etDob;
+    TextInputLayout elDob;
+    private PatientDetails patientModel;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //setHasOptionsMenu(true);
+        View v = inflater.inflate(R.layout.fragment_details_new, container, false);
+        patientModel = ViewModelProviders.of(this).get(PatientDetails.class);
 
-        View v = inflater.inflate(R.layout.fragment_details, container, false);
-        final Spinner spDays = (Spinner) v.findViewById(R.id.spinner);
-        Spinner spMonths = (Spinner) v.findViewById(R.id.spinner2);
-        Spinner spYears = (Spinner) v.findViewById(R.id.spinner3);
-        Button btnSave = (Button) v.findViewById(R.id.button);
-        Button btnCreateKeys = (Button) v.findViewById(R.id.button4);
+        elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
+        etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
+        etDob.setInputType(InputType.TYPE_NULL);
+        Button btnSave = (Button) v.findViewById(R.id.save_button);
+        Button btnCreateKeys = (Button) v.findViewById(R.id.create_keys_button);
 
         btnCreateKeys.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EncryptionClass encryption = new EncryptionClass();
-                KeyPair keys = encryption.generateKeys();
-                String publicKey = keys.getPublic().toString();
-                Toast.makeText(getContext(), publicKey, Toast.LENGTH_SHORT).show();
+                String publicKey = encryption.createAndStoreKeys(getContext());
+                System.out.println(publicKey);
+
+                String newPk = encryption.readPublicKey("hyperion");
+                System.out.println("PUBLIC KEY RETRIEVED");
+                System.out.println(newPk);
+
             }
         });
 
@@ -64,96 +75,93 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                // Gets the data repository in write mode
-                SqliteFeeder dbHelper = new SqliteFeeder(getContext());
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                Activity a = getActivity();
 
-                // Create a new map of values, where column names are the keys
-                EditText tvFullname = (EditText) getActivity().findViewById(R.id.editText);
-                String fullname = (String) tvFullname.getText().toString();
-                EditText tvEmail = (EditText) getActivity().findViewById(R.id.editText2);
-                String email = (String) tvEmail.getText().toString();
-                EditText tvAddress = (EditText) getActivity().findViewById(R.id.editText4);
-                String address = (String) tvAddress.getText().toString();
+                EditText etFullname = (EditText) a.findViewById(R.id.name_edit_text);
+                EditText etEmail = (EditText) a.findViewById(R.id.email_edit_text);
+                EditText etAddress = (EditText) a.findViewById(R.id.address_edit_text);
+                EditText etAddress2 = (EditText) a.findViewById(R.id.address2_edit_text);
+                EditText etCity = (EditText) a.findViewById(R.id.city_edit_text);
+                EditText etPostCode = (EditText) a.findViewById(R.id.post_code_edit_text);
+                EditText etDOB = (EditText) a.findViewById(R.id.dob_edit_text);
+                EditText etPPSNumber = (EditText) a.findViewById(R.id.pps_edit_text);
+                EditText etInsurance = (EditText) a.findViewById(R.id.insurance_edit_text);
 
-                //https://stackoverflow.com/questions/1947933/how-to-get-spinner-value
-                //Concatenate Date
-                Spinner tvSelectedDays = (Spinner) getActivity().findViewById(R.id.spinner);
-                String spSelDays = (String) tvSelectedDays.getSelectedItem().toString();
-                Spinner tvSelectedMths = (Spinner) getActivity().findViewById(R.id.spinner2);
-                String spSelMths = (String) tvSelectedMths.getSelectedItem().toString();
-                Spinner tvSelectedYears = (Spinner) getActivity().findViewById(R.id.spinner3);
-                String spSelYears = (String) tvSelectedYears.getSelectedItem().toString();
-                String dob = spSelYears + '-' + spSelMths + '-' + spSelDays;
 
-                ContentValues values = new ContentValues();
-                values.put(SqliteHelper.FeedEntry.COLUMN_NAME_FULLNAME, fullname);
-                values.put(SqliteHelper.FeedEntry.COLUMN_NAME_EMAIL, email);
-                values.put(SqliteHelper.FeedEntry.COLUMN_NAME_DOB, dob);
-                values.put(SqliteHelper.FeedEntry.COLUMN_NAME_ADDRESS, address);
+                String fullname = (String) etFullname.getText().toString();
+                String email = (String) etEmail.getText().toString();
+                String address = (String) etAddress.getText().toString();
+                String address2 = (String) etAddress2.getText().toString();
+                String city = (String) etCity.getText().toString();
+                String postcode = (String) etPostCode.getText().toString();
+                String strDOB = (String) etDOB.getText().toString();
+                Date dob = null;
+                try {
+                    dob = new SimpleDateFormat("dd/MM/yyyy").parse(strDOB);
+                } catch(ParseException e){
+                    System.out.println("PARSE EXCEPTION: " + e.getMessage());
+                }
+                String ppsnumber = (String) etPPSNumber.getText().toString();
+                String insurance = (String) etInsurance.getText().toString();
 
-                // Insert the new row, returning the primary key value of the new row
-                long newRowId = db.insert(SqliteHelper.FeedEntry.TABLE_NAME, null, values);
-                System.out.println(newRowId);
-                Toast.makeText(getContext(),"Data Saved Successfully.",Toast.LENGTH_SHORT).show();
+                patientModel.setPersonalDetails(
+                        fullname,
+                        email,
+                        dob,
+                        address,
+                        address2,
+                        city,
+                        postcode,
+                        ppsnumber,
+                        insurance
+                );
             }
         });
+        //Partially adapted from here:
+        //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.days_array,
-                android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spDays.setAdapter(adapter);
-
-        Spinner spinner = (Spinner) v.findViewById(R.id.spinner);
-        spDays.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        etDob.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                spDays.setSelection(position);
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spMonths.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                parent.setSelection(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    final Calendar cldr = Calendar.getInstance();
+                    int day = cldr.get(Calendar.DAY_OF_MONTH);
+                    int month = cldr.get(Calendar.MONTH);
+                    int year = cldr.get(Calendar.YEAR);
+                    // date picker dialog
+                    picker = new DatePickerDialog(getActivity(),
+                            new DatePickerDialog.OnDateSetListener() {
+                                @Override
+                                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                    etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                                }
+                            }, year, month, day);
+                    picker.show();
+                }
             }
         });
-
-        spYears.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        //Partially adapted from here:
+        //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
+        etDob.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                parent.setSelection(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public void onClick(View v) {
+                final Calendar cldr = Calendar.getInstance();
+                int day = cldr.get(Calendar.DAY_OF_MONTH);
+                int month = cldr.get(Calendar.MONTH);
+                int year = cldr.get(Calendar.YEAR);
+                // date picker dialog
+                picker = new DatePickerDialog(getActivity(),
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                            }
+                        }, year, month, day);
+                picker.show();
             }
         });
-
-        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getActivity(), R.array.months_array,
-                android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spMonths.setAdapter(adapter2);
-
-        ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getActivity(), R.array.years_array,
-                android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spYears.setAdapter(adapter3);
 
         return v;
     }
-
 }
 
