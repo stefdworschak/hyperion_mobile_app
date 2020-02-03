@@ -8,6 +8,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,10 +18,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.hyperionapp.ui.main.SectionsPagerAdapter;
 import com.google.api.Context;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,20 +33,24 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+/*
+    For JSON to Object coversion:
+    https://mkyong.com/java/how-do-convert-java-object-to-from-json-format-gson-api/
+
+ */
 
 public class MainActivity extends AppCompatActivity {
 
+    Gson gson = new Gson();
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric";
+    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric";
     private PatientDetails patientModel;
+    private EncryptionClass encryption = new EncryptionClass();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        File file=new File("hyperion_local.db");
-        String str = readFile(this,"hyperion.pem");
-        Toast.makeText(this.getApplicationContext(), str ,Toast.LENGTH_SHORT).show();
-
 
         // Load application logic
         setContentView(R.layout.activity_main);
@@ -53,6 +62,31 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
+
+        String encrypted_data = encryption.basicRead(MainActivity.this, "hyperion.enc");
+        String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
+
+        System.out.println("JSON DATA");
+        System.out.println(json_data);
+
+
+        PatientDetails p = gson.fromJson(json_data, PatientDetails.class);
+        System.out.println("MYNAME");
+        System.out.println(p.getBloodType());
+        System.out.println("MYNAME");
+
+        patientModel.setPersonalDetails(
+            p.getName(), p.getEmail(), p.getDateOfBirth(), p.getAddress(), p.getAddress2(),
+                p.getCity(),p.getPostCode(),p.getPPSNumber(),p.getInsurance()
+        );
+        patientModel.setMedicalDetails(
+            p.getBloodType(), p.getAllergies(), p.getTubercolosis(), p.getDiabetes(),
+                p.getHeartCondition(), p.getGloucoma(), p.getEpilepsy(), p.getDrugAlcoholAbuse(),
+                p.getSmoker(), p.getCancer(), p.getOtherConditions(), p.getMedications(),
+                p.getHeight(), p.getWeight(), p.getRegisteredGP()
+        );
+
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -80,26 +114,6 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    // Code helper:
-    // https://stackoverflow.com/questions/12421814/how-can-i-read-a-text-file-in-android
-    public static String readFile(Activity a, String filename){
-        String str = "";
-        String line;
-        try {
-            File file = new File(a.getFilesDir(), filename);
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            while ((line = br.readLine()) != null) {
-                str += line + "\n";
-            }
-            br.close();
-        } catch(FileNotFoundException fileNotFoundError){
-            System.out.println(fileNotFoundError);
-        } catch(IOException ioException){
-            System.out.println(ioException);
-        }
-        return str;
     }
 
 }

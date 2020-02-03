@@ -15,15 +15,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.hyperionapp.EncryptionClass;
 import com.example.hyperionapp.MainActivity;
 import com.example.hyperionapp.PatientDetails;
+import com.example.hyperionapp.PatientRecord;
 import com.example.hyperionapp.R;
+import com.example.hyperionapp.databinding.FragmentDetailsNewBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,86 +39,53 @@ import java.util.Date;
     References:
     SQLITE: https://developer.android.com/training/data-storage/sqlite
     SPINNER: https://developer.android.com/guide/topics/ui/controls/spinner
+    DATA BINDING: https://www.youtube.com/watch?v=pRaFlVCB87k&list=PLJJzW__bab3Q8jYR7dJnNUeoGpHN2Ei1n&index=3
+    DATA BINDING with FRAGMENT: https://stackoverflow.com/questions/34706399/how-to-use-data-binding-with-fragment
 
  */
 
 public class DetailsFragment extends Fragment {
+    Gson gson = new Gson();
+    private PatientDetails patientModel;
+    private FragmentDetailsNewBinding fragmentDetailsNewBinding;
+
     DatePickerDialog picker;
     EditText etDob;
     TextInputLayout elDob;
-    private PatientDetails patientModel;
+
+    PatientRecord p;
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric";
+    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric";
+    EncryptionClass encryption = new EncryptionClass();
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //setHasOptionsMenu(true);
-        View v = inflater.inflate(R.layout.fragment_details_new, container, false);
-        patientModel = ViewModelProviders.of(this).get(PatientDetails.class);
+        fragmentDetailsNewBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_details_new, container, false);
+        patientModel = ViewModelProviders.of(getActivity()).get(PatientDetails.class);
+        View v = fragmentDetailsNewBinding.getRoot();
+
+        fragmentDetailsNewBinding.setPatientModel(patientModel);
+        //p = new PatientRecord();
+        //patientModel.setName("Stefan Dworschak");
+        //fragmentDetailsNewBinding.setPatientModel(p);
+        //View v = inflater.inflate(R.layout.fragment_details_new, container, false);
+        //
+
+        //fragmentDetailsNewBinding = DataBindingUtil.setContentView(getActivity(), R.layout.fragment_details_new);
+        //PatientRecord p = new PatientRecord();
+        //fragmentDetailsNewBinding.setPatientModel(p);
 
         elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
         etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
         etDob.setInputType(InputType.TYPE_NULL);
         Button btnSave = (Button) v.findViewById(R.id.save_button);
-        Button btnCreateKeys = (Button) v.findViewById(R.id.create_keys_button);
-
-        btnCreateKeys.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EncryptionClass encryption = new EncryptionClass();
-                String publicKey = encryption.createAndStoreKeys(getContext());
-                System.out.println(publicKey);
-
-                String newPk = encryption.readPublicKey("hyperion");
-                System.out.println("PUBLIC KEY RETRIEVED");
-                System.out.println(newPk);
-
-            }
-        });
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Activity a = getActivity();
-
-                EditText etFullname = (EditText) a.findViewById(R.id.name_edit_text);
-                EditText etEmail = (EditText) a.findViewById(R.id.email_edit_text);
-                EditText etAddress = (EditText) a.findViewById(R.id.address_edit_text);
-                EditText etAddress2 = (EditText) a.findViewById(R.id.address2_edit_text);
-                EditText etCity = (EditText) a.findViewById(R.id.city_edit_text);
-                EditText etPostCode = (EditText) a.findViewById(R.id.post_code_edit_text);
-                EditText etDOB = (EditText) a.findViewById(R.id.dob_edit_text);
-                EditText etPPSNumber = (EditText) a.findViewById(R.id.pps_edit_text);
-                EditText etInsurance = (EditText) a.findViewById(R.id.insurance_edit_text);
-
-
-                String fullname = (String) etFullname.getText().toString();
-                String email = (String) etEmail.getText().toString();
-                String address = (String) etAddress.getText().toString();
-                String address2 = (String) etAddress2.getText().toString();
-                String city = (String) etCity.getText().toString();
-                String postcode = (String) etPostCode.getText().toString();
-                String strDOB = (String) etDOB.getText().toString();
-                Date dob = null;
-                try {
-                    dob = new SimpleDateFormat("dd/MM/yyyy").parse(strDOB);
-                } catch(ParseException e){
-                    System.out.println("PARSE EXCEPTION: " + e.getMessage());
-                }
-                String ppsnumber = (String) etPPSNumber.getText().toString();
-                String insurance = (String) etInsurance.getText().toString();
-
-                patientModel.setPersonalDetails(
-                        fullname,
-                        email,
-                        dob,
-                        address,
-                        address2,
-                        city,
-                        postcode,
-                        ppsnumber,
-                        insurance
-                );
+                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
             }
         });
         //Partially adapted from here:

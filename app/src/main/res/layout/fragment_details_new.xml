@@ -4,11 +4,23 @@ Paritially adopted from here:
 https://github.com/material-components/material-components-android-codelabs/blob/111-complete/kotlin/shipping/app/src/main/res/layout/shipping_info_activity.xml
 
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    >
+    <data>
+        <variable
+            name="patientModel"
+            type="com.example.hyperionapp.PatientDetails" />
+    </data>
+
+
+<ScrollView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -43,6 +55,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     android:drawableStart="@drawable/ic_person_grey_24dp"
                     android:drawablePadding="4dip"
                     android:hint="@string/full_name"
+                    android:text="@={patientModel.name}"
                     android:imeOptions="actionNext"
                     android:inputType="textPersonName"
                     android:padding="12dp"
@@ -225,12 +238,13 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:backgroundTint="@color/btnGreen2"
+                    android:textSize="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1.8"
                     android:layout_gravity="end"
-                    android:layout_marginTop="16dp"
-                    android:layout_weight=".7"
-                    android:text="Save"
-                    android:layout_marginRight="4dp"
-                    app:backgroundTint="@color/btnGreen2"
+                    android:text="@string/save_btn"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Button" />
 
                 <com.google.android.material.button.MaterialButton
@@ -238,29 +252,21 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:textSize="16dp"
                     android:layout_gravity="end"
-                    android:layout_marginTop="16dp"
-                    android:layout_weight=".3"
-                    android:text="Clear"
-                    android:layout_marginRight="4dp"
+                    android:text="@string/clear_all_btn"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Button" />
 
 
 
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/create_keys_button"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="16dp"
-                android:text="Create Encryption Keys"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
-                app:backgroundTint="@color/btnBlue" />
-
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </ScrollView>
+
+</layout>

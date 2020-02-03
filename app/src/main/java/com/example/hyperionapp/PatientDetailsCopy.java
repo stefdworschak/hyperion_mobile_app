@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel;
 import java.util.Date;
 import java.util.List;
 
-public class PatientDetails extends ViewModel {
+public class PatientDetailsCopy extends ViewModel {
 
     //Personal Details
-    ObservableField<String> name;
+    String name;
     String email;
     Date dateOfBirth;
     String address;
@@ -44,9 +44,9 @@ public class PatientDetails extends ViewModel {
     //Patient Records
     List<PatientRecord> patientRecords;
 
-    public PatientDetails() {
+    public PatientDetailsCopy() {
         //Personal Details
-        name = new ObservableField<>();
+        name = "";
         email = "";
         dateOfBirth = null;
         address = "";
@@ -82,7 +82,7 @@ public class PatientDetails extends ViewModel {
             String name, String email, Date dateOfBirth, String address, String address2,
             String city, String postCode, String PPSNumber, String insurance
     ){
-        this.name.set(name);
+        this.name = name;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
@@ -118,7 +118,7 @@ public class PatientDetails extends ViewModel {
     }
 
     public String getName(){
-        return name.get();
+        return name;
     }
 
     public String getEmail() {
@@ -165,12 +165,9 @@ public class PatientDetails extends ViewModel {
         this.patientRecords = patientRecords;
     }
 
-    /*public String getName() {
-        return name;
-    }*/
 
     public void setName(String name) {
-        this.name.set(name);
+        this.name  = name;
     }
 
     public String getAddress2() {

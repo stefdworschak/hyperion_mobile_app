@@ -4,201 +4,63 @@ Paritially adopted from here:
 https://github.com/material-components/material-components-android-codelabs/blob/111-complete/kotlin/shipping/app/src/main/res/layout/shipping_info_activity.xml
 
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    >
+    <data>
+        <variable
+            name="patientModel"
+            type="com.example.hyperionapp.PatientDetails" />
+    </data>
 
-    <com.google.android.material.card.MaterialCardView
+    <ScrollView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="0dp"
-        android:background="#FFFFFF"
-        app:contentPadding="0dp"
-        app:strokeWidth="0dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@android:color/transparent">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:orientation="vertical"
-            android:padding="16dp"
-            app:elevation="0dp">
+            android:layout_margin="0dp"
+            android:background="#FFFFFF"
+            app:contentPadding="0dp"
+            app:strokeWidth="0dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipToPadding="false"
                 android:orientation="vertical"
-                android:layout_marginBottom="16dp">
+                android:padding="16dp"
+                app:elevation="0dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Blood Type"
-                    android:textSize="12dp"></TextView>
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
 
-                <Spinner
-                    android:id="@+id/bloodtype_spinner"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/dropdown_shape"
-                    android:padding="12dp"
-                    android:paddingStart="32dp"/>
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Blood Type"
+                        android:textSize="12dp"></TextView>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/allergies_text_input"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:errorEnabled="true">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/allergies_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_allergies_24dp"
-                    android:drawablePadding="6dip"
-                    android:hint="@string/allergies"
-                    android:imeOptions="actionNext"
-                    android:inputType="textPersonName"
-                    android:padding="12dp"
-                    android:singleLine="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Medical Conditions">
-                </TextView>
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <CheckBox
+                    <Spinner
+                        android:id="@+id/bloodtype_spinner"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Tubercolosis"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false" />
-                    <CheckBox
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Diabetes"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <CheckBox
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Heart Condition"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false" />
-                    <CheckBox
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Gloucoma"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <CheckBox
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Epilepsy"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false" />
-                    <CheckBox
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Drug/Alcohol dependency"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <CheckBox
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Smoker"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false" />
-                    <CheckBox
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18dp"
-                        android:textColor="@color/btnGrey"
-                        android:button="@drawable/checkbox_selector_new"
-                        android:paddingLeft="4dip"
-                        android:text="Cancer"
-                        android:layout_marginBottom="8dp"
-                        android:checked="false"/>
+                        android:background="@drawable/dropdown_shape"
+                        android:padding="12dp"
+                        android:paddingStart="32dp"/>
                 </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/other_conditions_text_input"
+                    android:id="@+id/allergies_text_input"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -206,125 +68,309 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/other_conditions_edit_text"
-                        android:drawableStart="@drawable/ic_add_circle_outline_grey_24dp"
-                        android:drawablePadding="4dip"
+                        android:id="@+id/allergies_edit_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/other_conditions"
+                        android:drawableStart="@drawable/ic_allergies_24dp"
+                        android:drawablePadding="6dip"
+                        android:hint="@string/allergies"
                         android:imeOptions="actionNext"
                         android:inputType="textPersonName"
                         android:padding="12dp"
                         android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/medication_text_input"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    app:errorEnabled="true">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/medication_edit_text"
-                        android:drawableStart="@drawable/ic_pills_24dp"
-                        android:drawablePadding="6dip"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/medications"
-                        android:imeOptions="actionNext"
-                        android:inputType="textCapWords"
-                        android:padding="12dp"
-                        android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-
                 <LinearLayout
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/height_text_input"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="Medical Conditions">
+                    </TextView>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/tubercolosis_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/tubercolosis"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false" />
+                        <CheckBox
+                            android:id="@+id/diabetes_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/diabetes"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/heart_condition_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/heart_condition"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false" />
+                        <CheckBox
+                            android:id="@+id/gloucoma_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/gloucoma"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/epilepsy_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/epilepsy"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false" />
+                        <CheckBox
+                            android:id="@+id/alcohol_drug_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/drug_alcohol_abuse"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/smoker_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/smoker"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false" />
+                        <CheckBox
+                            android:id="@+id/cancer_checkbox"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18dp"
+                            android:textColor="@color/btnGrey"
+                            android:button="@drawable/checkbox_selector_new"
+                            android:paddingLeft="4dip"
+                            android:text="@string/cancer"
+                            android:layout_marginBottom="8dp"
+                            android:checked="false"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/other_conditions_text_input"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:layout_marginRight="4dp"
                         app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/height_edit_text"
+                            android:id="@+id/other_conditions_edit_text"
+                            android:drawableStart="@drawable/ic_add_circle_outline_grey_24dp"
+                            android:drawablePadding="4dip"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:drawableStart="@drawable/ic_height_24dp"
+                            android:hint="@string/other_conditions"
+                            android:imeOptions="actionNext"
+                            android:inputType="textPersonName"
+                            android:padding="12dp"
+                            android:singleLine="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/medication_text_input"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        app:errorEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/medication_edit_text"
+                            android:drawableStart="@drawable/ic_pills_24dp"
                             android:drawablePadding="6dip"
-                            android:hint="@string/height"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/medications"
                             android:imeOptions="actionNext"
                             android:inputType="textCapWords"
                             android:padding="12dp"
                             android:singleLine="true" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/height_text_input"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginRight="4dp"
+                            app:errorEnabled="true">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/height_edit_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:drawableStart="@drawable/ic_height_24dp"
+                                android:drawablePadding="6dip"
+                                android:hint="@string/height"
+                                android:imeOptions="actionNext"
+                                android:inputType="textCapWords"
+                                android:padding="12dp"
+                                android:singleLine="true" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/weight_text_input"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginLeft="4dp"
+                            app:errorEnabled="true">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/weight_edit_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:drawableStart="@drawable/ic_weight_24dp"
+                                android:drawablePadding="6dip"
+                                android:hint="@string/weight"
+                                android:imeOptions="actionNext"
+                                android:inputType="textCapWords"
+                                android:padding="12dp"
+                                android:singleLine="true" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/weight_text_input"
+                        android:id="@+id/gp_text_input"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:layout_marginLeft="4dp"
                         app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/weight_edit_text"
+                            android:id="@+id/gp_edit_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:drawableStart="@drawable/ic_weight_24dp"
+                            android:drawableStart="@drawable/ic_user_md_24dp"
                             android:drawablePadding="6dip"
-                            android:hint="@string/weight"
+                            android:hint="@string/gp"
                             android:imeOptions="actionNext"
-                            android:inputType="textCapWords"
+                            android:inputType="textPersonName"
                             android:padding="12dp"
                             android:singleLine="true" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/save_button2"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:backgroundTint="@color/btnGreen2"
+                            android:textSize="16dp"
+                            android:layout_marginEnd="4dp"
+                            android:layout_weight="1.8"
+                            android:layout_gravity="end"
+                            android:text="@string/save_btn"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Button" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/clear_button2"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:textSize="16dp"
+                            android:layout_gravity="end"
+                            android:text="@string/clear_all_btn"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Button" />
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/gp_text_input"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    app:errorEnabled="true">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/gp_edit_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/ic_user_md_24dp"
-                        android:drawablePadding="6dip"
-                        android:hint="@string/gp"
-                        android:imeOptions="actionNext"
-                        android:inputType="textPersonName"
-                        android:padding="12dp"
-                        android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/create_keys_button"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="Create Encryption Keys"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
-                    app:backgroundTint="@color/btnBlue" />
-
             </LinearLayout>
 
-        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </ScrollView>
 
-    </com.google.android.material.card.MaterialCardView>
-</ScrollView>
+
+</layout>

@@ -58,6 +58,14 @@
     <string name="height">Height(ft)</string>
     <string name="gp">Registered GP</string>
     <string name="insurance_policy_number">Insurance Policy Number</string>
+    <string name="tubercolosis">Tubercolosis</string>
+    <string name="diabetes">Diabetes</string>
+    <string name="heart_condition">Heart Condition</string>
+    <string name="gloucoma">Gloucoma</string>
+    <string name="epilepsy">Epilepsy</string>
+    <string name="drug_alcohol_abuse">Drug/Alcohol abuse</string>
+    <string name="smoker">Smoker</string>
+    <string name="cancer">Cancer</string>
 
     <string-array name="bloodtype_array">
         <item>A+</item>
