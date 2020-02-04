@@ -29,6 +29,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -52,6 +53,7 @@ public class DetailsFragment extends Fragment {
     DatePickerDialog picker;
     EditText etDob;
     TextInputLayout elDob;
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 
     PatientRecord p;
     final String SYMMETRIC_ALIAS = "hyperion_symmetric";
@@ -60,37 +62,24 @@ public class DetailsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //setHasOptionsMenu(true);
-        fragmentDetailsNewBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_details_new, container, false);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        fragmentDetailsNewBinding = DataBindingUtil.inflate(inflater,
+                R.layout.fragment_details_new, container, false);
         patientModel = ViewModelProviders.of(getActivity()).get(PatientDetails.class);
         View v = fragmentDetailsNewBinding.getRoot();
 
         fragmentDetailsNewBinding.setPatientModel(patientModel);
-        //p = new PatientRecord();
-        //patientModel.setName("Stefan Dworschak");
-        //fragmentDetailsNewBinding.setPatientModel(p);
-        //View v = inflater.inflate(R.layout.fragment_details_new, container, false);
-        //
-
-        //fragmentDetailsNewBinding = DataBindingUtil.setContentView(getActivity(), R.layout.fragment_details_new);
-        //PatientRecord p = new PatientRecord();
-        //fragmentDetailsNewBinding.setPatientModel(p);
 
         elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
         etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
         etDob.setInputType(InputType.TYPE_NULL);
         Button btnSave = (Button) v.findViewById(R.id.save_button);
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
-            }
-        });
+        etDob.setText(dateFormat.format(patientModel.getDateOfBirth()));
+
         //Partially adapted from here:
         //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
-
         etDob.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -105,12 +94,18 @@ public class DetailsFragment extends Fragment {
                                 @Override
                                 public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                     etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                                    cldr.set(year, monthOfYear, dayOfMonth);
+                                    cldr.getTime();
+                                    Date dob = (Date) cldr.getTime();
+                                    patientModel.setDateOfBirth(dob);
                                 }
                             }, year, month, day);
                     picker.show();
                 }
             }
         });
+
+
         //Partially adapted from here:
         //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
         etDob.setOnClickListener(new View.OnClickListener() {
@@ -120,15 +115,26 @@ public class DetailsFragment extends Fragment {
                 int day = cldr.get(Calendar.DAY_OF_MONTH);
                 int month = cldr.get(Calendar.MONTH);
                 int year = cldr.get(Calendar.YEAR);
-                // date picker dialog
                 picker = new DatePickerDialog(getActivity(),
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                 etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                                cldr.set(year, monthOfYear, dayOfMonth);
+                                cldr.getTime();
+                                Date dob = (Date) cldr.getTime();
+                                patientModel.setDateOfBirth(dob);
                             }
                         }, year, month, day);
                 picker.show();
+            }
+        });
+
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
             }
         });
 

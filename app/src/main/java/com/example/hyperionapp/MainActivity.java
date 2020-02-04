@@ -71,9 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         PatientDetails p = gson.fromJson(json_data, PatientDetails.class);
-        System.out.println("MYNAME");
-        System.out.println(p.getBloodType());
-        System.out.println("MYNAME");
 
         patientModel.setPersonalDetails(
             p.getName(), p.getEmail(), p.getDateOfBirth(), p.getAddress(), p.getAddress2(),
@@ -85,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
                 p.getSmoker(), p.getCancer(), p.getOtherConditions(), p.getMedications(),
                 p.getHeight(), p.getWeight(), p.getRegisteredGP()
         );
-
 
     }
     @Override

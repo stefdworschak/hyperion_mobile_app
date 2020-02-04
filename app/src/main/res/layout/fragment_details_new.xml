@@ -79,6 +79,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     android:inputType="textPostalAddress"
                     android:imeOptions="actionNext"
                     android:padding="12dp"
+                    android:text="@={patientModel.address}"
                     android:hint="@string/address1" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -97,6 +98,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     android:inputType="textPostalAddress"
                     android:imeOptions="actionNext"
                     android:padding="12dp"
+                    android:text="@={patientModel.address2}"
                     android:hint="@string/address2" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -119,6 +121,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                         android:id="@+id/city_edit_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="@={patientModel.city}"
                         android:hint="@string/city"
                         android:imeOptions="actionNext"
                         android:inputType="textCapWords"
@@ -140,6 +143,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/post_code"
+                        android:text="@={patientModel.postCode}"
                         android:imeOptions="actionNext"
                         android:inputType="textCapCharacters"
                         android:padding="12dp"
@@ -164,6 +168,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     android:inputType="textEmailAddress"
                     android:imeOptions="actionNext"
                     android:padding="12dp"
+                    android:text="@={patientModel.email}"
                     android:hint="@string/email_address" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -204,6 +209,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     android:singleLine="true"
                     android:imeOptions="actionNext"
                     android:padding="12dp"
+                    android:text="@={patientModel.pPSNumber}"
                     android:hint="@string/pps_number" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -224,6 +230,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                     android:singleLine="true"
                     android:imeOptions="actionNext"
                     android:padding="12dp"
+                    android:text="@={patientModel.insurance}"
                     android:hint="@string/insurance_policy_number" />
             </com.google.android.material.textfield.TextInputLayout>
 
