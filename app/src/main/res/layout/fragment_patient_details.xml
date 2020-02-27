@@ -74,6 +74,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                         android:drawableStart="@drawable/ic_allergies_24dp"
                         android:drawablePadding="6dip"
                         android:hint="@string/allergies"
+                        android:text="@={patientModel.allergies}"
                         android:imeOptions="actionNext"
                         android:inputType="textPersonName"
                         android:padding="12dp"
@@ -107,7 +108,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/tubercolosis"
                             android:layout_marginBottom="8dp"
-                            android:checked="false" />
+                            android:checked="@={patientModel.tubercolosis}" />
                         <CheckBox
                             android:id="@+id/diabetes_checkbox"
                             android:layout_width="fill_parent"
@@ -119,7 +120,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/diabetes"
                             android:layout_marginBottom="8dp"
-                            android:checked="false"/>
+                            android:checked="@={patientModel.diabetes}"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -138,7 +139,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/heart_condition"
                             android:layout_marginBottom="8dp"
-                            android:checked="false" />
+                            android:checked="@={patientModel.heartCondition}" />
                         <CheckBox
                             android:id="@+id/gloucoma_checkbox"
                             android:layout_width="fill_parent"
@@ -150,7 +151,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/gloucoma"
                             android:layout_marginBottom="8dp"
-                            android:checked="false"/>
+                            android:checked="@={patientModel.gloucoma}"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -169,7 +170,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/epilepsy"
                             android:layout_marginBottom="8dp"
-                            android:checked="false" />
+                            android:checked="@={patientModel.epilepsy}" />
                         <CheckBox
                             android:id="@+id/alcohol_drug_checkbox"
                             android:layout_width="fill_parent"
@@ -181,7 +182,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/drug_alcohol_abuse"
                             android:layout_marginBottom="8dp"
-                            android:checked="false"/>
+                            android:checked="@={patientModel.drugAlcoholAbuse}"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -200,7 +201,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/smoker"
                             android:layout_marginBottom="8dp"
-                            android:checked="false" />
+                            android:checked="@={patientModel.smoker}" />
                         <CheckBox
                             android:id="@+id/cancer_checkbox"
                             android:layout_width="fill_parent"
@@ -212,7 +213,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:paddingLeft="4dip"
                             android:text="@string/cancer"
                             android:layout_marginBottom="8dp"
-                            android:checked="false"/>
+                            android:checked="@={patientModel.cancer}"/>
                     </LinearLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -230,6 +231,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/other_conditions"
+                            android:text="@={patientModel.otherConditions}"
                             android:imeOptions="actionNext"
                             android:inputType="textPersonName"
                             android:padding="12dp"
@@ -251,6 +253,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/medications"
+                            android:text="@={patientModel.medications}"
                             android:imeOptions="actionNext"
                             android:inputType="textCapWords"
                             android:padding="12dp"
@@ -279,8 +282,9 @@ https://github.com/material-components/material-components-android-codelabs/blob
                                 android:drawableStart="@drawable/ic_height_24dp"
                                 android:drawablePadding="6dip"
                                 android:hint="@string/height"
+                                android:text="@={patientModel.height}"
                                 android:imeOptions="actionNext"
-                                android:inputType="textCapWords"
+                                android:inputType="numberDecimal"
                                 android:padding="12dp"
                                 android:singleLine="true" />
                         </com.google.android.material.textfield.TextInputLayout>
@@ -301,8 +305,9 @@ https://github.com/material-components/material-components-android-codelabs/blob
                                 android:drawableStart="@drawable/ic_weight_24dp"
                                 android:drawablePadding="6dip"
                                 android:hint="@string/weight"
+                                android:text="@={patientModel.weight}"
                                 android:imeOptions="actionNext"
-                                android:inputType="textCapWords"
+                                android:inputType="numberDecimal"
                                 android:padding="12dp"
                                 android:singleLine="true" />
                         </com.google.android.material.textfield.TextInputLayout>
@@ -324,6 +329,7 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:drawableStart="@drawable/ic_user_md_24dp"
                             android:drawablePadding="6dip"
                             android:hint="@string/gp"
+                            android:text="@={patientModel.registeredGP}"
                             android:imeOptions="actionNext"
                             android:inputType="textPersonName"
                             android:padding="12dp"

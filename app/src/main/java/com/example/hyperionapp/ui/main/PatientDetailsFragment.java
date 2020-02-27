@@ -11,9 +11,12 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -28,6 +31,7 @@ import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.databinding.FragmentPatientDetailsBinding;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 
 import java.security.PrivateKey;
@@ -44,11 +48,10 @@ import com.example.hyperionapp.databinding.FragmentDetailsNewBinding;
 
 public class PatientDetailsFragment extends Fragment {
 
-
     private Gson gson = new Gson();
-
-    final String SYMMETRIC_ALIAS = "hyperion_symmetric";
-    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric";
+    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
+    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     private EncryptionClass encryption = new EncryptionClass();
     private PatientDetails patientModel;
     private FragmentPatientDetailsBinding fragmentPatientDetailsBinding;
@@ -59,13 +62,9 @@ public class PatientDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        //View v = inflater.inflate(R.layout.fragment_patient_details, container, false);
-        //patientModel = ViewModelProviders.of(this).get(PatientDetails.class);
-
         fragmentPatientDetailsBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_patient_details, container, false);
         patientModel = ViewModelProviders.of(getActivity()).get(PatientDetails.class);
         View v = fragmentPatientDetailsBinding.getRoot();
-
         fragmentPatientDetailsBinding.setPatientModel(patientModel);
 
         btnSave = (Button) v.findViewById(R.id.save_button2);
@@ -76,89 +75,32 @@ public class PatientDetailsFragment extends Fragment {
         spinner.setAdapter(adapter);
         spinner.setPrompt("Select Blood Type");
 
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                patientModel.setBloodType(parent.getItemAtPosition(position).toString());
+                System.out.println("SPINNER");
+                System.out.println(parent.getItemAtPosition(position).toString() + " selected");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Activity a = getActivity();
-                double height = 0.0;
-                double weight = 0.0;
-                //Medical Details
-                /*EditText etAllergies = (EditText) a.findViewById(R.id.allergies_edit_text);
-                System.out.println("ALLERGIES TEXTINPUTLAYOUT");
-                System.out.println(etAllergies);
-                EditText etOtherConditions = (EditText) a.findViewById(R.id.other_conditions_edit_text);
-                EditText etMedications = (EditText) a.findViewById(R.id.medication_edit_text);
-                EditText etHeight = (EditText) a.findViewById(R.id.height_edit_text);
-                EditText etWeight = (EditText) a.findViewById(R.id.weight_edit_text);
-                EditText etRegisteredGP = (EditText) a.findViewById(R.id.gp_edit_text);
-
-                //Medical Conditions Checkboxes
-                CheckBox chTubercolosis = (CheckBox) a.findViewById(R.id.tubercolosis_checkbox);
-                CheckBox chDiabetes = (CheckBox) a.findViewById(R.id.diabetes_checkbox);
-                CheckBox chHeartCondition = (CheckBox) a.findViewById(R.id.heart_condition_checkbox);
-                CheckBox chGloucoma = (CheckBox) a.findViewById(R.id.gloucoma_checkbox);
-                CheckBox chEpilepsy = (CheckBox) a.findViewById(R.id.epilepsy_checkbox);
-                CheckBox chDrugAlcoholAbuse = (CheckBox) a.findViewById(R.id.alcohol_drug_checkbox);
-                CheckBox chSmoker = (CheckBox) a.findViewById(R.id.smoker_checkbox);
-                CheckBox chCancer = (CheckBox) a.findViewById(R.id.cancer_checkbox);
-
-                //Medical Details
-                String bloodType = (String) spinner.getSelectedItem().toString();
-                String allergies = (String) etAllergies.getText().toString();
-                String otherConditions = (String) etOtherConditions.getText().toString();
-                String medications = (String) etMedications.getText().toString();
-
-                String height_str = (String) etHeight.getText().toString();
-                String weight_str = (String) etWeight.getText().toString();
-                if(!height_str.equals("")){
-                    height = (double) Double.parseDouble(height_str);
-                }
-                if(!weight_str.equals("")){
-                    weight = (double) Double.parseDouble(weight_str);
-                }
-                String registeredGP = (String) etRegisteredGP.getText().toString();
-
-                //Medical Conditions Checkboxes
-                Boolean tubercolosis = (Boolean) chTubercolosis.isChecked();
-                Boolean diabetes = (Boolean) chDiabetes.isChecked();
-                Boolean heartCondition = (Boolean) chHeartCondition.isChecked();
-                Boolean gloucoma = (Boolean) chGloucoma.isChecked();
-                Boolean epilepsy = (Boolean) chEpilepsy.isChecked();
-                Boolean drugAlcoholAbuse = (Boolean) chDrugAlcoholAbuse.isChecked();
-                Boolean smoker = (Boolean) chSmoker.isChecked();
-                Boolean cancer = (Boolean) chCancer.isChecked();
-
-                patientModel.setMedicalDetails(
-                        bloodType, allergies, tubercolosis, diabetes, heartCondition,
-                        gloucoma, epilepsy, drugAlcoholAbuse, smoker, cancer,
-                        otherConditions, medications, height, weight, registeredGP
-                );
-                */
+                System.out.println("SYMMETRIC ALIAS");
+                System.out.println(SYMMETRIC_ALIAS);
                 String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
                 System.out.println(saveMsg);
-
-
 
             }
         });
 
         return v;
-
-    }
-
-    public void saveData(){
-        String json = (String) gson.toJson(patientModel);
-        String encryptedString = encryption.encryptSymmetric(json, SYMMETRIC_ALIAS);
-        //System.out.println(encryptedString);
-        //String decryptedString = encryption.decryptSymmetrically(encryptedString, SYMMETRIC_ALIAS);
-        //System.out.println(decryptedString);
-
-
-        String written = encryption.basicWrite(getContext(), encryptedString, "hyperion.enc");
-        System.out.println(written);
-        String read = encryption.basicRead(getContext(), "hyperion.enc");
-        System.out.println(read);
 
     }
 }

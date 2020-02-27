@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/editText5"
+        android:id="@+id/etConfirmCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -14,12 +14,12 @@
         android:layout_marginBottom="16dp"
         android:ems="10"
         android:inputType="numberPassword"
-        app:layout_constraintBottom_toTopOf="@+id/button3"
+        app:layout_constraintBottom_toTopOf="@+id/confirmCodeBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/confirmCodeBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/confirm_code"

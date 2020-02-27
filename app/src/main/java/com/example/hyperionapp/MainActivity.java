@@ -1,6 +1,7 @@
 package com.example.hyperionapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import com.example.hyperionapp.ui.main.SectionsPagerAdapter;
 import com.google.api.Context;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -42,8 +44,9 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     Gson gson = new Gson();
-    final String SYMMETRIC_ALIAS = "hyperion_symmetric";
-    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric";
+    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric_";
+    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_";
     private PatientDetails patientModel;
     private EncryptionClass encryption = new EncryptionClass();
 
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+        int view_page = intent.getIntExtra("viewpager_position", 1);
+        System.out.println("VIEWPAGE: " + view_page);
 
         // Load application logic
         setContentView(R.layout.activity_main);
@@ -63,24 +69,35 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
+        viewPager.setCurrentItem(view_page);
+
         String encrypted_data = encryption.basicRead(MainActivity.this, "hyperion.enc");
-        String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
+        System.out.println("LOADING USERID DATA");
+        System.out.println(user_id);
+        System.out.println("Encrypted Data");
+        System.out.println(encrypted_data);
 
-        System.out.println("JSON DATA");
-        System.out.println(json_data);
+        String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS + user_id);
 
 
-        PatientDetails p = gson.fromJson(json_data, PatientDetails.class);
-        System.out.println("MYNAME");
-        System.out.println(p.getBloodType());
-        System.out.println("MYNAME");
+        PatientDetails p;
+        if(json_data != null) {
+            System.out.println("FOUND JSON");
+            p = gson.fromJson(json_data, PatientDetails.class);
+        } else {
+            System.out.println("JSON EMPTY");
+            p = new PatientDetails();
+        }
+
+        System.out.println("DATE OF BIRTH LOADED");
+        System.out.println(p.getDateOfBirth());
 
         patientModel.setPersonalDetails(
-            p.getName(), p.getEmail(), p.getDateOfBirth(), p.getAddress(), p.getAddress2(),
+                p.getName(), p.getEmail(), p.getDateOfBirth(), p.getAddress(), p.getAddress2(),
                 p.getCity(),p.getPostCode(),p.getPPSNumber(),p.getInsurance()
         );
         patientModel.setMedicalDetails(
-            p.getBloodType(), p.getAllergies(), p.getTubercolosis(), p.getDiabetes(),
+                p.getBloodType(), p.getAllergies(), p.getTubercolosis(), p.getDiabetes(),
                 p.getHeartCondition(), p.getGloucoma(), p.getEpilepsy(), p.getDrugAlcoholAbuse(),
                 p.getSmoker(), p.getCancer(), p.getOtherConditions(), p.getMedications(),
                 p.getHeight(), p.getWeight(), p.getRegisteredGP()
@@ -108,8 +125,14 @@ public class MainActivity extends AppCompatActivity {
             case R.id.encryption:
                 //Do something
                 return true;
-            case R.id.logout:
+            case R.id.change_password:
                 //Do something
+                return true;
+            case R.id.logout:
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                mAuth.signOut();
+                Intent loginActivity = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(loginActivity);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -27,12 +27,16 @@ import com.example.hyperionapp.R;
 import com.example.hyperionapp.databinding.FragmentDetailsNewBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
 /*
@@ -48,49 +52,42 @@ public class DetailsFragment extends Fragment {
     Gson gson = new Gson();
     private PatientDetails patientModel;
     private FragmentDetailsNewBinding fragmentDetailsNewBinding;
+    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     DatePickerDialog picker;
     EditText etDob;
     TextInputLayout elDob;
+    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 
     PatientRecord p;
-    final String SYMMETRIC_ALIAS = "hyperion_symmetric";
-    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric";
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
+    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     EncryptionClass encryption = new EncryptionClass();
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //setHasOptionsMenu(true);
-        fragmentDetailsNewBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_details_new, container, false);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        fragmentDetailsNewBinding = DataBindingUtil.inflate(inflater,
+                R.layout.fragment_details_new, container, false);
         patientModel = ViewModelProviders.of(getActivity()).get(PatientDetails.class);
         View v = fragmentDetailsNewBinding.getRoot();
 
         fragmentDetailsNewBinding.setPatientModel(patientModel);
-        //p = new PatientRecord();
-        //patientModel.setName("Stefan Dworschak");
-        //fragmentDetailsNewBinding.setPatientModel(p);
-        //View v = inflater.inflate(R.layout.fragment_details_new, container, false);
-        //
-
-        //fragmentDetailsNewBinding = DataBindingUtil.setContentView(getActivity(), R.layout.fragment_details_new);
-        //PatientRecord p = new PatientRecord();
-        //fragmentDetailsNewBinding.setPatientModel(p);
-
+        String dobSelect = null;
         elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
         etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
         etDob.setInputType(InputType.TYPE_NULL);
         Button btnSave = (Button) v.findViewById(R.id.save_button);
+        Date dob = patientModel.getDateOfBirth();
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
-            }
-        });
+        if(dob != null) {
+            dobSelect = null;
+            etDob.setText(dateFormat.format(dob));
+        }
+
         //Partially adapted from here:
         //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
-
         etDob.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -105,12 +102,20 @@ public class DetailsFragment extends Fragment {
                                 @Override
                                 public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                     etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                                    cldr.set(year, monthOfYear, dayOfMonth);
+                                    cldr.getTime();
+                                    System.out.println("PRINT DATE");
+                                    System.out.println(cldr.getTime());
+                                    Date dob = (Date) cldr.getTime();
+                                    patientModel.setDateOfBirth(dob);
                                 }
                             }, year, month, day);
                     picker.show();
                 }
             }
         });
+
+
         //Partially adapted from here:
         //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
         etDob.setOnClickListener(new View.OnClickListener() {
@@ -120,15 +125,28 @@ public class DetailsFragment extends Fragment {
                 int day = cldr.get(Calendar.DAY_OF_MONTH);
                 int month = cldr.get(Calendar.MONTH);
                 int year = cldr.get(Calendar.YEAR);
-                // date picker dialog
                 picker = new DatePickerDialog(getActivity(),
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                 etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                                cldr.set(year, monthOfYear, dayOfMonth);
+                                System.out.println("PRINT DATE");
+                                System.out.println(cldr.getTime());
+                                cldr.getTime();
+                                Date dob = (Date) cldr.getTime();
+                                patientModel.setDateOfBirth(dob);
                             }
                         }, year, month, day);
                 picker.show();
+            }
+        });
+
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
             }
         });
 

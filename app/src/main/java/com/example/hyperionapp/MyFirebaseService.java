@@ -22,12 +22,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-import com.example.hyperionapp.ui.main.CodeFragment;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -149,13 +146,46 @@ public class MyFirebaseService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, MainActivity.class);
+        String CHANNEL_ID = "FCM_DEFAULT_CHANNEL";
+        int requestID = (int) System.currentTimeMillis();
+        NotificationManager notificationManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
+        Intent fullScreenIntent = new Intent(getApplicationContext(), CodeActivity.class);
+        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), requestID,
+                fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_stat_ic_notification)
+                        .setContentTitle("Data Sharing Request")
+                        .setContentText(messageBody)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
+                        .setWhen(0)
+                        .setContentIntent(fullScreenPendingIntent)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
+                        .setCategory(NotificationCompat.CATEGORY_CALL)
+                        .addAction(R.drawable.ic_file_upload_black_24dp, getString(R.string.share_notifications),
+                                fullScreenPendingIntent)
+                        .setFullScreenIntent(fullScreenPendingIntent, true);
+
+        int NOTIFICATION_ID = (int) System.currentTimeMillis();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel notificationChannel = new NotificationChannel("hyperion_channel", "hyperion_notification", NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+
+        //Old Logic
+        /*Intent intent = new Intent(this, MainActivity.class);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        Intent intent2 = new Intent(this, CodeFragment.class);
+        Intent intent2 = new Intent(this, CodeActivity.class);
         intent2.putExtra("session_id", session_id);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent2,
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent2,
                 PendingIntent.FLAG_ONE_SHOT);
         PendingIntent openCodeIntent =PendingIntent.getBroadcast(getApplicationContext(), OPEN_CODE_INTENT, intent2, 0);
 
@@ -169,6 +199,8 @@ public class MyFirebaseService extends FirebaseMessagingService {
                         .setContentText(messageBody)
                         .addAction(R.drawable.ic_send_black_24dp, "Share", openCodeIntent)
                         .setStyle(new NotificationCompat.BigTextStyle())
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setCategory(NotificationCompat.CATEGORY_CALL)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);
@@ -184,6 +216,6 @@ public class MyFirebaseService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(channel);
         }
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify(0, notificationBuilder.build());*/
     }
 }

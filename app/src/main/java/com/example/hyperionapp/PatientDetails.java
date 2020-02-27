@@ -10,35 +10,33 @@ public class PatientDetails extends ViewModel {
 
     //Personal Details
     ObservableField<String> name;
-    String email;
+    ObservableField<String> email;
     Date dateOfBirth;
-    String address;
-    String address2;
-    String city;
-    String postCode;
-    String PPSNumber;
-    String insurance;
+    ObservableField<String> address;
+    ObservableField<String> address2;
+    ObservableField<String> city;
+    ObservableField<String> postCode;
+    ObservableField<String> PPSNumber;
+    ObservableField<String> insurance;
 
     //Medical Details
     String bloodType;
-    String allergies;
-    String otherConditions;
-    String medications;
-    String strHeight;
-    String strWidth;
-    double height;
-    double weight;
-    String registeredGP;
+    ObservableField<String> allergies;
+    ObservableField<String> otherConditions;
+    ObservableField<String> medications;
+    ObservableField<String> height;
+    ObservableField<String> weight;
+    ObservableField<String> registeredGP;
 
     //Medical Conditions Checkboxes
-    Boolean tubercolosis;
-    Boolean diabetes;
-    Boolean heartCondition;
-    Boolean gloucoma;
-    Boolean epilepsy;
-    Boolean drugAlcoholAbuse;
-    Boolean smoker;
-    Boolean cancer;
+    ObservableField<Boolean> tubercolosis;
+    ObservableField<Boolean> diabetes;
+    ObservableField<Boolean> heartCondition;
+    ObservableField<Boolean> gloucoma;
+    ObservableField<Boolean> epilepsy;
+    ObservableField<Boolean> drugAlcoholAbuse;
+    ObservableField<Boolean> smoker;
+    ObservableField<Boolean> cancer;
 
 
     //Patient Records
@@ -47,34 +45,32 @@ public class PatientDetails extends ViewModel {
     public PatientDetails() {
         //Personal Details
         name = new ObservableField<>();
-        email = "";
+        email = new ObservableField<>();
         dateOfBirth = null;
-        address = "";
-        address2 = "";
-        city = "";
-        postCode = "";
-        PPSNumber = "";
-        insurance = "";
-        strHeight = "0.0";
-        strWidth = "0.0";
+        address = new ObservableField<>();
+        address2 = new ObservableField<>();
+        city = new ObservableField<>();
+        postCode = new ObservableField<>();
+        PPSNumber = new ObservableField<>();
+        insurance = new ObservableField<>();
         //Medical Details
         bloodType = "";
-        allergies = "";
-        otherConditions = "";
-        medications = "";
-        height = 0.0;
-        weight = 0.0;
-        registeredGP = "";
+        allergies = new ObservableField<>();
+        otherConditions = new ObservableField<>();
+        medications = new ObservableField<>();
+        height = new ObservableField<>();
+        weight = new ObservableField<>();
+        registeredGP = new ObservableField<>();
 
         //Medical Conditions Checkboxes
-        tubercolosis = Boolean.FALSE;
-        diabetes = Boolean.FALSE;
-        heartCondition = Boolean.FALSE;
-        gloucoma = Boolean.FALSE;
-        epilepsy = Boolean.FALSE;
-        drugAlcoholAbuse = Boolean.FALSE;
-        smoker = Boolean.FALSE;
-        cancer = Boolean.FALSE;
+        tubercolosis = new ObservableField<>();
+        diabetes = new ObservableField<>();
+        heartCondition = new ObservableField<>();
+        gloucoma = new ObservableField<>();
+        epilepsy = new ObservableField<>();
+        drugAlcoholAbuse = new ObservableField<>();
+        smoker = new ObservableField<>();
+        cancer = new ObservableField<>();
         
     }
 
@@ -83,38 +79,38 @@ public class PatientDetails extends ViewModel {
             String city, String postCode, String PPSNumber, String insurance
     ){
         this.name.set(name);
-        this.email = email;
+        this.email.set(email);
         this.dateOfBirth = dateOfBirth;
-        this.address = address;
-        this.address2 = address2;
-        this.city = city;
-        this.postCode = postCode;
-        this.PPSNumber = PPSNumber;
-        this. insurance = insurance;
+        this.address.set(address);
+        this.address2 .set(address2);
+        this.city.set(city);
+        this.postCode.set(postCode);
+        this.PPSNumber.set(PPSNumber);
+        this. insurance.set(insurance);
     }
 
     public void setMedicalDetails(
             String bloodType, String allergies,
             Boolean tubercolosis, Boolean diabetes, Boolean heartCondition, Boolean gloucoma,
             Boolean epilepsy, Boolean drugAlcoholAbuse, Boolean smoker, Boolean cancer,
-            String otherConditions, String medications, double height, double weight,
+            String otherConditions, String medications, String height, String weight,
             String registeredGP
     ){
         this.bloodType = bloodType;
-        this.allergies = allergies;
-        this.tubercolosis = tubercolosis;
-        this.diabetes = diabetes;
-        this.heartCondition = heartCondition;
-        this.gloucoma = gloucoma;
-        this.epilepsy = epilepsy;
-        this.drugAlcoholAbuse = drugAlcoholAbuse;
-        this.smoker = smoker;
-        this.cancer = cancer;
-        this.otherConditions = otherConditions;
-        this.medications = medications;
-        this.height = height;
-        this.weight = weight;
-        this.registeredGP = registeredGP;
+        this.allergies.set(allergies);
+        this.tubercolosis.set(tubercolosis);
+        this.diabetes.set(diabetes);
+        this.heartCondition.set(heartCondition);
+        this.gloucoma.set(gloucoma);
+        this.epilepsy.set(epilepsy);
+        this.drugAlcoholAbuse.set(drugAlcoholAbuse);
+        this.smoker.set(smoker);
+        this.cancer.set(cancer);
+        this.otherConditions.set(otherConditions);
+        this.medications.set(medications);
+        this.height.set(height);
+        this.weight.set(weight);
+        this.registeredGP.set(registeredGP);
     }
 
     public String getName(){
@@ -122,11 +118,11 @@ public class PatientDetails extends ViewModel {
     }
 
     public String getEmail() {
-        return email;
+        return email.get();
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email.set(email);
     }
 
     public Date getDateOfBirth() {
@@ -138,11 +134,11 @@ public class PatientDetails extends ViewModel {
     }
 
     public String getAddress() {
-        return address;
+        return address.get();
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.address.set(address);
     }
 
     public String getBloodType() {
@@ -154,11 +150,11 @@ public class PatientDetails extends ViewModel {
     }
 
     public String getOtherConditions() {
-        return otherConditions;
+        return otherConditions.get();
     }
 
     public void setOtherConditions(String otherConditions) {
-        this.otherConditions = otherConditions;
+        this.otherConditions.set(otherConditions);
     }
 
     public void setPatientRecords(List<PatientRecord> patientRecords) {
@@ -174,83 +170,83 @@ public class PatientDetails extends ViewModel {
     }
 
     public String getAddress2() {
-        return address2;
+        return address2.get();
     }
 
     public void setAddress2(String address2) {
-        this.address2 = address2;
+        this.address2.set(address2);
     }
 
     public String getCity() {
-        return city;
+        return city.get();
     }
 
     public void setCity(String city) {
-        this.city = city;
+        this.city.set(city);
     }
 
     public String getPostCode() {
-        return postCode;
+        return postCode.get();
     }
 
     public void setPostCode(String postCode) {
-        this.postCode = postCode;
+        this.postCode.set(postCode);
     }
 
     public String getPPSNumber() {
-        return PPSNumber;
+        return PPSNumber.get();
     }
 
     public void setPPSNumber(String PPSNumber) {
-        this.PPSNumber = PPSNumber;
+        this.PPSNumber.set(PPSNumber);
     }
 
     public String getInsurance() {
-        return insurance;
+        return insurance.get();
     }
 
     public void setInsurance(String insurance) {
-        this.insurance = insurance;
+        this.insurance.set(insurance);
     }
 
     public String getAllergies() {
-        return allergies;
+        return allergies.get();
     }
 
     public void setAllergies(String allergies) {
-        this.allergies = allergies;
+        this.allergies.set(allergies);
     }
 
     public String getMedications() {
-        return medications;
+        return medications.get();
     }
 
     public void setMedications(String medications) {
-        this.medications = medications;
+        this.medications.set(medications);
     }
 
-    public double getHeight() {
-        return height;
+    public String getHeight() {
+        return height.get();
     }
 
-    public void setHeight(double height) {
-        this.height = height;
+    public void setHeight(String height) {
+        this.height.set(height);
     }
 
-    public double getWeight() {
-        return weight;
+    public String getWeight() {
+        return weight.get();
     }
 
-    public void setWeight(double weight) {
-        this.weight = weight;
+    public void setWeight(String weight) {
+        this.weight.set(weight);
     }
 
     public String getRegisteredGP() {
-        return registeredGP;
+        return registeredGP.get();
     }
 
     public void setRegisteredGP(String registeredGP) {
-        this.registeredGP = registeredGP;
+        this.registeredGP.set(registeredGP);
     }
 
     public List<PatientRecord> getPatientRecords() {
@@ -258,82 +254,67 @@ public class PatientDetails extends ViewModel {
     }
 
     public Boolean getTubercolosis() {
-        return tubercolosis;
+        return tubercolosis.get();
     }
 
     public void setTubercolosis(Boolean tubercolosis) {
-        this.tubercolosis = tubercolosis;
+        this.tubercolosis.set(tubercolosis);
     }
 
     public Boolean getDiabetes() {
-        return diabetes;
+        return diabetes.get();
     }
 
     public void setDiabetes(Boolean diabetes) {
-        this.diabetes = diabetes;
+        this.diabetes.set(diabetes);
     }
 
     public Boolean getHeartCondition() {
-        return heartCondition;
+        return heartCondition.get();
     }
 
     public void setHeartCondition(Boolean heartCondition) {
-        this.heartCondition = heartCondition;
+        this.heartCondition.set(heartCondition);
     }
 
     public Boolean getGloucoma() {
-        return gloucoma;
+        return gloucoma.get();
     }
 
     public void setGloucoma(Boolean gloucoma) {
-        this.gloucoma = gloucoma;
+        this.gloucoma.set(gloucoma);
     }
 
     public Boolean getEpilepsy() {
-        return epilepsy;
+        return epilepsy.get();
     }
 
     public void setEpilepsy(Boolean epilepsy) {
-        this.epilepsy = epilepsy;
+        this.epilepsy.set(epilepsy);
     }
 
     public Boolean getDrugAlcoholAbuse() {
-        return drugAlcoholAbuse;
+        return drugAlcoholAbuse.get();
     }
 
     public void setDrugAlcoholAbuse(Boolean drugAlcoholAbuse) {
-        this.drugAlcoholAbuse = drugAlcoholAbuse;
+        this.drugAlcoholAbuse.set(drugAlcoholAbuse);
     }
 
     public Boolean getSmoker() {
-        return smoker;
+        return smoker.get();
     }
 
     public void setSmoker(Boolean smoker) {
-        this.smoker = smoker;
+        this.smoker.set(smoker);
     }
 
     public Boolean getCancer() {
-        return cancer;
+        return cancer.get();
     }
 
     public void setCancer(Boolean cancer) {
-        this.cancer = cancer;
+        this.cancer.set(cancer);
     }
 
-    public String getStrHeight() {
-        return strHeight;
-    }
-
-    public void setStrHeight(String strHeight) {
-        this.strHeight = strHeight;
-    }
-
-    public String getStrWidth() {
-        return strWidth;
-    }
-
-    public void setStrWidth(String strWidth) {
-        this.strWidth = strWidth;
-    }
 }
