@@ -3,6 +3,7 @@
     <string name="tab_text_1">My Details</string>
     <string name="tab_text_2">Check-In</string>
     <string name="tab_text_3">Medical Info</string>
+    <string name="share_notifications">Share</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="details_fragment_text">My Details</string>
@@ -66,6 +67,9 @@
     <string name="drug_alcohol_abuse">Drug/Alcohol abuse</string>
     <string name="smoker">Smoker</string>
     <string name="cancer">Cancer</string>
+    <string name="no_account_yet_create_one">No account yet? Create one</string>
+    <string name="login_btn">Login</string>
+    <string name="loading">Loading...</string>
 
     <string-array name="bloodtype_array">
         <item>A+</item>

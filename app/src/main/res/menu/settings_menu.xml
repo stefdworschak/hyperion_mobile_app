@@ -6,8 +6,13 @@
         android:title="Encryption Keys"
         app:showAsAction="never"
         />
-    <item android:id="@+id/logout"
+    <item android:id="@+id/change_password"
         android:icon="@drawable/ic_height_24dp"
         android:title="Change Password"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/logout"
+        android:icon="@drawable/ic_height_24dp"
+        android:title="Logout"
         app:showAsAction="never" />
 </menu>

@@ -31,6 +31,7 @@ import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.databinding.FragmentPatientDetailsBinding;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 
 import java.security.PrivateKey;
@@ -48,8 +49,9 @@ import com.example.hyperionapp.databinding.FragmentDetailsNewBinding;
 public class PatientDetailsFragment extends Fragment {
 
     private Gson gson = new Gson();
-    final String SYMMETRIC_ALIAS = "hyperion_symmetric";
-    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric";
+    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
+    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     private EncryptionClass encryption = new EncryptionClass();
     private PatientDetails patientModel;
     private FragmentPatientDetailsBinding fragmentPatientDetailsBinding;
@@ -90,7 +92,8 @@ public class PatientDetailsFragment extends Fragment {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                System.out.println("SYMMETRIC ALIAS");
+                System.out.println(SYMMETRIC_ALIAS);
                 String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
                 System.out.println(saveMsg);
 

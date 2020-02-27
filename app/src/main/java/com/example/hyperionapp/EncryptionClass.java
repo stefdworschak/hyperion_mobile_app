@@ -119,7 +119,7 @@ public class EncryptionClass {
          */
         String encryptedDataStringIV = null;
         try {
-            SecretKey secretKey = (SecretKey) generateSymmetricKey("hyperion_symmetric");
+            SecretKey secretKey = (SecretKey) generateSymmetricKey(alias);
             final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 
             byte[] iv = new byte[GCM_IV_LENGTH];
@@ -164,6 +164,8 @@ public class EncryptionClass {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
+            System.out.println("ALIAS");
+            System.out.println(alias);
             final KeyStore.SecretKeyEntry secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore
                     .getEntry(alias, null);
             final SecretKey secretKey = secretKeyEntry.getSecretKey();

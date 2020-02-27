@@ -27,6 +27,8 @@ import com.example.hyperionapp.R;
 import com.example.hyperionapp.databinding.FragmentDetailsNewBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
 import java.text.DateFormat;
@@ -34,6 +36,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
 /*
@@ -49,15 +52,16 @@ public class DetailsFragment extends Fragment {
     Gson gson = new Gson();
     private PatientDetails patientModel;
     private FragmentDetailsNewBinding fragmentDetailsNewBinding;
+    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     DatePickerDialog picker;
     EditText etDob;
     TextInputLayout elDob;
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 
     PatientRecord p;
-    final String SYMMETRIC_ALIAS = "hyperion_symmetric";
-    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric";
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
+    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     EncryptionClass encryption = new EncryptionClass();
 
     @Nullable
@@ -70,13 +74,17 @@ public class DetailsFragment extends Fragment {
         View v = fragmentDetailsNewBinding.getRoot();
 
         fragmentDetailsNewBinding.setPatientModel(patientModel);
-
+        String dobSelect = null;
         elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
         etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
         etDob.setInputType(InputType.TYPE_NULL);
         Button btnSave = (Button) v.findViewById(R.id.save_button);
+        Date dob = patientModel.getDateOfBirth();
 
-        etDob.setText(dateFormat.format(patientModel.getDateOfBirth()));
+        if(dob != null) {
+            dobSelect = null;
+            etDob.setText(dateFormat.format(dob));
+        }
 
         //Partially adapted from here:
         //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
@@ -96,6 +104,8 @@ public class DetailsFragment extends Fragment {
                                     etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
                                     cldr.set(year, monthOfYear, dayOfMonth);
                                     cldr.getTime();
+                                    System.out.println("PRINT DATE");
+                                    System.out.println(cldr.getTime());
                                     Date dob = (Date) cldr.getTime();
                                     patientModel.setDateOfBirth(dob);
                                 }
@@ -121,6 +131,8 @@ public class DetailsFragment extends Fragment {
                             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                 etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
                                 cldr.set(year, monthOfYear, dayOfMonth);
+                                System.out.println("PRINT DATE");
+                                System.out.println(cldr.getTime());
                                 cldr.getTime();
                                 Date dob = (Date) cldr.getTime();
                                 patientModel.setDateOfBirth(dob);
