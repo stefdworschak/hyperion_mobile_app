@@ -6,9 +6,9 @@
         android:title="Encryption Keys"
         app:showAsAction="never"
         />
-    <item android:id="@+id/change_password"
+    <item android:id="@+id/change_code"
         android:icon="@drawable/ic_height_24dp"
-        android:title="Change Password"
+        android:title="New Verification Code"
         app:showAsAction="never" />
 
     <item android:id="@+id/logout"
