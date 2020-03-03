@@ -34,8 +34,11 @@ import androidx.work.WorkManager;
 
 public class MyFirebaseService extends FirebaseMessagingService {
 
+    private static final String MSG_TAG = "Firebase MsgBody:";
     private static final String TAG = "MyFirebaseMsgService";
     private static final int OPEN_CODE_INTENT = 100;
+    private final int NOTIFICATION_ID = 606;
+    private String CHANNEL_ID = "fcm_notification";
     private static String session_id = "";
     /**
      * Called when message is received.
@@ -61,33 +64,28 @@ public class MyFirebaseService extends FirebaseMessagingService {
         // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
         // [END_EXCLUDE]
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
+        Log.d(MSG_TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            Log.d(MSG_TAG, "Message data payload: " + remoteMessage.getData());
             session_id = remoteMessage.getData().get("session_id");
-            Log.d(TAG, "Session ID from message: " + session_id);
+            Log.d(MSG_TAG, "Session ID from message: " + session_id);
 
-            if (/* Check if data needs to be processed by long running job */ true) {
+            if (/* Check if data needs to be processed by long running job */ false) {
+                Log.d(MSG_TAG, "Runs scheduleJob");
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 scheduleJob();
             } else {
                 // Handle message within 10 seconds
-                handleNow();
+                //handleNow(remoteMessage.getNotification().getBody());
+                handleNow("Give permission to share your personal data");
             }
 
+        } else {
+            Log.d(MSG_TAG, "No remote message size");
         }
 
-        // Check if message contains a notification payload.
-        if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-        }
-
-        // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
     }
     // [END receive_message]
 
@@ -114,18 +112,24 @@ public class MyFirebaseService extends FirebaseMessagingService {
      * Schedule async work using WorkManager.
      */
     private void scheduleJob() {
+        Log.d(MSG_TAG, "Scheduled task.");
         // [START dispatch_job]
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(MyWorker.class)
+        /*OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(MyWorker.class)
                 .build();
-        WorkManager.getInstance().beginWith(work).enqueue();
+        WorkManager.getInstance().beginWith(work).enqueue();*/
         // [END dispatch_job]
     }
 
     /**
      * Handle time allotted to BroadcastReceivers.
      */
-    private void handleNow() {
+    private void handleNow(String messageBody) {
         Log.d(TAG, "Short lived task is done.");
+        try {
+            sendNotification(messageBody);
+        } catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -146,19 +150,24 @@ public class MyFirebaseService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String messageBody) {
+        Log.d(MSG_TAG, "Notification Method Triggered");
         String CHANNEL_ID = "FCM_DEFAULT_CHANNEL";
         int requestID = (int) System.currentTimeMillis();
         NotificationManager notificationManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent fullScreenIntent = new Intent(getApplicationContext(), CodeActivity.class);
-        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), requestID,
-                fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent notifyIntent = new Intent(this, CodeActivity.class);
+        Log.d("SESSION ID FCM", session_id);
 
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_stat_ic_notification)
+        notifyIntent.putExtra("session_id", session_id);
+        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+                getApplicationContext(), OPEN_CODE_INTENT,
+                notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder notificationCompatBuilder =
+                new NotificationCompat.Builder(
+                        getApplicationContext(), CHANNEL_ID);
+
+        notificationCompatBuilder.setSmallIcon(R.drawable.ic_stat_ic_notification)
                         .setContentTitle("Data Sharing Request")
                         .setContentText(messageBody)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
@@ -166,56 +175,23 @@ public class MyFirebaseService extends FirebaseMessagingService {
                         .setContentIntent(fullScreenPendingIntent)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setCategory(NotificationCompat.CATEGORY_CALL)
+                        .setAutoCancel(true)
                         .addAction(R.drawable.ic_file_upload_black_24dp, getString(R.string.share_notifications),
                                 fullScreenPendingIntent)
                         .setFullScreenIntent(fullScreenPendingIntent, true);
 
-        int NOTIFICATION_ID = (int) System.currentTimeMillis();
+        Log.d(MSG_TAG, notificationCompatBuilder.toString());
+
+        //int NOTIFICATION_ID = (int) System.currentTimeMillis();
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel notificationChannel = new NotificationChannel("hyperion_channel", "hyperion_notification", NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "hyperion_notification",
+                    NotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.setAllowBubbles(true);
+            notificationChannel.setBypassDnd(true);
             notificationManager.createNotificationChannel(notificationChannel);
+            Log.d(MSG_TAG, notificationChannel.toString());
         }
 
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
-
-        //Old Logic
-        /*Intent intent = new Intent(this, MainActivity.class);
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        Intent intent2 = new Intent(this, CodeActivity.class);
-        intent2.putExtra("session_id", session_id);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent2,
-                PendingIntent.FLAG_ONE_SHOT);
-        PendingIntent openCodeIntent =PendingIntent.getBroadcast(getApplicationContext(), OPEN_CODE_INTENT, intent2, 0);
-
-
-        String channelId = getString(R.string.default_notification_channel_id);
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.ic_stat_ic_notification)
-                        .setContentTitle(getString(R.string.fcm_message))
-                        .setContentText(messageBody)
-                        .addAction(R.drawable.ic_send_black_24dp, "Share", openCodeIntent)
-                        .setStyle(new NotificationCompat.BigTextStyle())
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setCategory(NotificationCompat.CATEGORY_CALL)
-                        .setAutoCancel(true)
-                        .setSound(defaultSoundUri)
-                        .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        notificationManager.notify(0, notificationBuilder.build());*/
+        notificationManager.notify(NOTIFICATION_ID, notificationCompatBuilder.build());
     }
 }
