@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,20 +19,20 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.w3c.dom.Text;
-
 /*
  * References:
  * https://firebase.google.com/docs/auth/android/manage-users
  * https://firebase.google.com/docs/auth/android/password-auth
  */
 
-public class LoginActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
     EditText etEmail;
     EditText etPassword;
+    EditText etConfirmPassword;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     final String TAG = "CREATE USER ACCOUNT";
+    final String ASYMMETRIC_ALIAS_ROOT = "hyperion_asymmetric_";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -41,41 +41,34 @@ public class LoginActivity extends AppCompatActivity {
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
+            Log.d("CURRENT USER", user.toString());
             // User is signed in
             Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(mainActivity);
         }
-        setContentView(R.layout.activity_login);
 
-        Button btnSave = (Button) findViewById(R.id.btn_login);
-        TextView tvCreateUser = (TextView) findViewById(R.id.link_signup);
+        setContentView(R.layout.activity_create_user);
+        Button btnCreate = (Button) findViewById(R.id.btn_create_user);
 
-        tvCreateUser.setOnClickListener(new View.OnClickListener() {
+        btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                etEmail = (EditText) findViewById(R.id.input_login_email);
-                etPassword = (EditText) findViewById(R.id.input_login_password);
-                signIn(etEmail.getText().toString(), etPassword.getText().toString());
+                etEmail = (EditText) findViewById(R.id.create_user_email);
+                etPassword = (EditText) findViewById(R.id.create_password_input);
+                etConfirmPassword = (EditText) findViewById(R.id.confirm_password_input);
+                if(etPassword.getText().toString().equals(etConfirmPassword.getText().toString())){
+                    createAccount(etEmail.getText().toString(), etPassword.getText().toString());
+                } else {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                              "Passwords don't match", Toast.LENGTH_SHORT);
+                    toast.setGravity(
+                            Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+                    toast.show();
+                }
             }
         });
 
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
-    // [END on_start_check_user]
 
     private void createAccount(String email, String password) {
         Log.d(TAG, "createAccount:" + email);
@@ -83,74 +76,41 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        //showProgressBar();
-
-        // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
+                            // Create User success, send user to create a new code
+                            sendEmailVerification();
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            if(user != null) {
+                                EncryptionClass encryption = new EncryptionClass();
+                                String public_key = encryption.createAndStoreKeys(
+                                        getApplicationContext(),
+                                        ASYMMETRIC_ALIAS_ROOT + user.getUid());
+                                //TODO: Send pub key to MongoDB
+                                Intent createCodeIntent = new Intent(
+                                        RegisterActivity.this, CreateCodeActivity.class);
+                                startActivity(createCodeIntent);
+                            } else {
+                                Intent loginIntent = new Intent(
+                                        RegisterActivity.this, LoginActivity.class);
+                                startActivity(loginIntent);
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
+                            System.out.println(task.getException().getMessage());
+                            Toast toast = Toast.makeText(RegisterActivity.this, task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT);
+                            toast.setGravity(
+                                    Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 100);
+                            toast.show();
                         }
-
-                        // [START_EXCLUDE]
-                        //hideProgressBar();
-                        // [END_EXCLUDE]
                     }
                 });
-        // [END create_user_with_email]
-    }
-
-    private void signIn(String email, String password) {
-        Log.d(TAG, "signIn:" + email);
-        if (!validateForm()) {
-            return;
-        }
-
-        //showProgressBar();
-
-        // [START sign_in_with_email]
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // [START_EXCLUDE]
-                        //if (!task.isSuccessful()) {
-                        //    mStatusTextView.setText(R.string.auth_failed);
-                        //}
-                        //hideProgressBar();
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END sign_in_with_email]
-    }
-
-    private void signOut() {
-        mAuth.signOut();
-        updateUI(null);
     }
 
     private void sendEmailVerification() {
@@ -169,12 +129,12 @@ public class LoginActivity extends AppCompatActivity {
                         //findViewById(R.id.verifyEmailButton).setEnabled(true);
 
                         if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this,
+                            Toast.makeText(RegisterActivity.this,
                                     "Verification email sent to " + user.getEmail(),
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             Log.e(TAG, "sendEmailVerification", task.getException());
-                            Toast.makeText(LoginActivity.this,
+                            Toast.makeText(RegisterActivity.this,
                                     "Failed to send verification email.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -203,18 +163,14 @@ public class LoginActivity extends AppCompatActivity {
             etPassword.setError(null);
         }
 
-        return valid;
-    }
-
-    private void updateUI(FirebaseUser user) {
-        //hideProgressBar();
-        if (user != null) {
-            Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
-            System.out.println(user.getEmail());
-            System.out.println(user.getUid());
-            startActivity(mainActivity);
+        String passwordConfirm = etConfirmPassword.getText().toString();
+        if (TextUtils.isEmpty(passwordConfirm)) {
+            etConfirmPassword.setError("Required.");
+            valid = false;
         } else {
-
+            etConfirmPassword.setError(null);
         }
+
+        return valid;
     }
 }
