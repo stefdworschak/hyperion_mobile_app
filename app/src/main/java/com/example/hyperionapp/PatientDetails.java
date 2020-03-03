@@ -37,6 +37,7 @@ public class PatientDetails extends ViewModel {
     ObservableField<Boolean> drugAlcoholAbuse;
     ObservableField<Boolean> smoker;
     ObservableField<Boolean> cancer;
+    String userCode;
 
 
     //Patient Records
@@ -317,4 +318,7 @@ public class PatientDetails extends ViewModel {
         this.cancer.set(cancer);
     }
 
+    public String getUserCode() { return userCode; }
+
+    public void setUserCode(String userCode) { this.userCode = userCode; }
 }

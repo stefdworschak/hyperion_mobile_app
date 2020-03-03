@@ -87,19 +87,24 @@ public class EncryptionClass {
          */
         SecretKey secretKey = null;
         try {
-            final KeyGenerator keyGenerator = KeyGenerator
-                    .getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            secretKey = retrieveSymmetricKey(alias);
+            System.out.println(secretKey);
+            if(secretKey == null) {
+                final KeyGenerator keyGenerator = KeyGenerator
+                        .getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
 
-            final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(alias,
-                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    //This needs to be set to false to be able to provide a custom IV
-                    .setRandomizedEncryptionRequired(false)
-                    .build();
+                final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(alias,
+                        KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                        //This needs to be set to false to be able to provide a custom IV
+                        .setRandomizedEncryptionRequired(false)
+                        .build();
 
-            keyGenerator.init(keyGenParameterSpec);
-            secretKey = keyGenerator.generateKey();
+                keyGenerator.init(keyGenParameterSpec);
+                secretKey = keyGenerator.generateKey();
+
+            }
 
         } catch(NoSuchProviderException noProvider){
             System.out.println(noProvider.getMessage());
@@ -210,11 +215,10 @@ public class EncryptionClass {
 
 
     @TargetApi(23)
-    public String createAndStoreKeys(Context context){
+    public String createAndStoreKeys(Context context, String alias){
         String pk_string = null;
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
-            String alias = "hyperion";
             KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(alias,
                     KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
@@ -290,54 +294,6 @@ public class EncryptionClass {
     }
 
 
-    public Boolean writeEncryptedDataToFile(Context c, byte[] encryptedData, String filename){
-        try {
-            FileOutputStream fos = c.openFileOutput(filename,Context.MODE_PRIVATE);
-            System.out.println(c);
-            OutputStreamWriter out = new OutputStreamWriter(fos);
-            //String encryptedString = (String) Base64.encodeToString(encryptedData, Base64.DEFAULT);
-
-            out.write("yet");
-            out.close();
-            return Boolean.TRUE;
-        } catch(FileNotFoundException fileNotFoundError){
-            System.out.println("EXCEPTION");
-            System.out.println(fileNotFoundError.getMessage());
-            return Boolean.FALSE;
-        } catch(IOException ioException){
-            System.out.println(ioException.getMessage());
-            return Boolean.FALSE;
-        }
-    }
-
-    public byte[] readEncryptedDataFromFile(Activity a, String filename){
-        byte[] encryptedData = null;
-        try {
-            File file = new File(a.getFilesDir(), filename);
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
-            int currentBytes = 0;
-            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-            while((currentBytes=br.read()) > -1){
-                byteBuffer.write(currentBytes);
-            }
-            encryptedData = byteBuffer.toByteArray();
-            return encryptedData;
-        } catch(FileNotFoundException fileNotFoundError){
-            System.out.println("EXCEPTION");
-            System.out.println(fileNotFoundError.getMessage());
-            return null;
-        } catch(IOException ioException){
-            System.out.println("EXCEPTION");
-            System.out.println(ioException.getMessage());
-            return null;
-        } catch(Exception e){
-            System.out.println("EXCEPTION");
-            System.out.println(e.getMessage());
-            return null;
-        }
-    }
-
     public String basicWrite(Context c, String mystr, String filename){
         File file = new File(c.getFilesDir(),"hyperion_data");
         if(!file.exists()){
@@ -376,10 +332,41 @@ public class EncryptionClass {
         return "ERROR READING FILE";
     }
 
-    public String saveData(PatientDetails patientModel, String alias, Context c){
+    public String saveData(PatientDetails patientModel, String alias, Context c, String filename){
         String json = gson.toJson(patientModel);
         String encryptedString = encryptSymmetric(json, alias);
-        String written = basicWrite(c, encryptedString, "hyperion.enc");
+        String written = basicWrite(c, encryptedString, filename);
         return written;
     }
+
+    public String saveString(String saveString, String alias, Context c, String filename){
+        String encryptedString = encryptSymmetric(saveString, alias);
+        String written = basicWrite(c, encryptedString, filename);
+        return written;
+    }
+
+    public SecretKey retrieveSymmetricKey(String alias){
+        SecretKey secretKey = null;
+        try {
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            if(keyStore.containsAlias(alias)) {
+                final KeyStore.SecretKeyEntry secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore
+                        .getEntry(alias, null);
+                secretKey = secretKeyEntry.getSecretKey();
+            }
+        } catch(KeyStoreException keystoreException){
+            keystoreException.printStackTrace();
+        } catch(CertificateException certificateException){
+            certificateException.printStackTrace();
+        }  catch(UnrecoverableEntryException unrecoverableEntry){
+            unrecoverableEntry.printStackTrace();
+        } catch(NoSuchAlgorithmException noAlgorithm){
+            noAlgorithm.printStackTrace();
+        } catch(IOException IOException){
+            IOException.printStackTrace();
+        }
+        return secretKey;
+    }
+
 }

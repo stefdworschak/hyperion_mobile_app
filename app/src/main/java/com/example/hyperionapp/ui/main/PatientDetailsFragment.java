@@ -52,6 +52,7 @@ public class PatientDetailsFragment extends Fragment {
     private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
+    final String DATA_FILENAME = user_id + "_hyperion.enc";
     private EncryptionClass encryption = new EncryptionClass();
     private PatientDetails patientModel;
     private FragmentPatientDetailsBinding fragmentPatientDetailsBinding;
@@ -92,11 +93,8 @@ public class PatientDetailsFragment extends Fragment {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("SYMMETRIC ALIAS");
-                System.out.println(SYMMETRIC_ALIAS);
-                String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
-                System.out.println(saveMsg);
-
+            String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
+            System.out.println(saveMsg);
             }
         });
 

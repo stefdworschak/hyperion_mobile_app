@@ -62,6 +62,7 @@ public class DetailsFragment extends Fragment {
     PatientRecord p;
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
+    final String DATA_FILENAME = user_id + "_hyperion.enc";
     EncryptionClass encryption = new EncryptionClass();
 
     @Nullable
@@ -104,8 +105,6 @@ public class DetailsFragment extends Fragment {
                                     etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
                                     cldr.set(year, monthOfYear, dayOfMonth);
                                     cldr.getTime();
-                                    System.out.println("PRINT DATE");
-                                    System.out.println(cldr.getTime());
                                     Date dob = (Date) cldr.getTime();
                                     patientModel.setDateOfBirth(dob);
                                 }
@@ -131,8 +130,6 @@ public class DetailsFragment extends Fragment {
                             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                 etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
                                 cldr.set(year, monthOfYear, dayOfMonth);
-                                System.out.println("PRINT DATE");
-                                System.out.println(cldr.getTime());
                                 cldr.getTime();
                                 Date dob = (Date) cldr.getTime();
                                 patientModel.setDateOfBirth(dob);
@@ -146,7 +143,7 @@ public class DetailsFragment extends Fragment {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext());
+                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
             }
         });
 

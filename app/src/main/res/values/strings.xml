@@ -70,6 +70,12 @@
     <string name="no_account_yet_create_one">No account yet? Create one</string>
     <string name="login_btn">Login</string>
     <string name="loading">Loading...</string>
+    <string name="create_code_text">Please enter a new 2-Factor Verification code and click confirm to save it.</string>
+    <string name="confirm_code_text">Please enter your 2-Factor Verification code to confirm.</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="create_user_btn">Create User</string>
 
     <string-array name="bloodtype_array">
         <item>A+</item>

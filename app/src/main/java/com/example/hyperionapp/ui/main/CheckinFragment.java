@@ -15,7 +15,9 @@
  */
 package com.example.hyperionapp.ui.main;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,8 +30,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.example.hyperionapp.CodeActivity;
+import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.Checkin;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,7 +61,6 @@ public class CheckinFragment extends Fragment {
 
     private static final String TAG = "MainActivity";
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -65,26 +68,13 @@ public class CheckinFragment extends Fragment {
         /*WebView mWebView = (WebView) v.findViewById(R.id.webView);
         mWebView.loadUrl("https://hyperion-app.herokuapp.com/checkin/");
 
-        // Enable Javascript
-        WebSettings webSettings = mWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView.setWebViewClient(new WebViewClient());*/
         Button bSubscribe = v.findViewById(R.id.subscribeButton);
         Button bLogToken = v.findViewById(R.id.logTokenButton);
-        Button bGotoCode = v.findViewById(R.id.btnGotoCode);
         etToken = v.findViewById(R.id.editText3);
        // mDatabase = FirebaseDatabase.getInstance().getReference();
         db = FirebaseFirestore.getInstance();
-
-        bGotoCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getContext(), CodeActivity.class);
-                startActivity(i);
-            }
-        });
 
         bLogToken.setOnClickListener(new View.OnClickListener() {
             @Override
