@@ -8,6 +8,7 @@ import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -34,6 +35,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -44,6 +46,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
@@ -55,6 +58,9 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
+import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
 
 /*
@@ -78,6 +84,63 @@ public class EncryptionClass {
     private final static int GCM_TAG_LENGTH = 16;
     private final static Gson gson = new Gson();
 
+    public String encryptUsingPassword(String password, String data) throws Exception {
+        final String characterEncoding = "UTF-8";
+        final String cipherTransformation = "AES/CBC/PKCS5Padding";
+        final String aesEncryptionAlgorithm = "AES";
+        final String messageDigestAlgorithm = "SHA-256";
+        final int ivSize = 16;
+        byte[] keyBytes;
+        byte[] plainMessage = data.getBytes();
+        MessageDigest md = MessageDigest.getInstance(messageDigestAlgorithm);
+        md.update(password.getBytes(characterEncoding));
+        keyBytes = md.digest();
+        SecretKeySpec keySpec = new SecretKeySpec(keyBytes, aesEncryptionAlgorithm);
+
+        SecureRandom random = new SecureRandom();
+        byte[] ivBytes = new byte[ivSize];
+        random.nextBytes(ivBytes);
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+
+        Cipher cipher = Cipher.getInstance(cipherTransformation);
+
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] inputBytes = new byte[ivBytes.length + plainMessage.length];
+        System.arraycopy(ivBytes, 0, inputBytes, 0, ivBytes.length);
+        System.arraycopy(plainMessage, 0, inputBytes, ivBytes.length, plainMessage.length);
+        byte[] encryptedData = cipher.doFinal(inputBytes);
+        return Base64.encodeToString(encryptedData, Base64.DEFAULT);
+    }
+
+
+
+    @TargetApi(23)
+    public EncHelper generateSingleSymmetricKey(){
+
+        KeyGenerator keyGen = null;
+        EncHelper encHelper = new EncHelper();
+        try {
+            /*
+             * Get KeyGenerator object that generates secret keys for the
+             * specified algorithm.
+             */
+            keyGen = KeyGenerator.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        /* Initializes this key generator for key size to 256. */
+        keyGen.init(256);
+
+        /* Generates a secret key */
+        SecretKey secretKey = keyGen.generateKey();
+        encHelper.setSecretKey(secretKey);
+        String encodedKey = Base64.encodeToString(secretKey.getEncoded(), Base64.DEFAULT);
+        encHelper.setSecretKeyString(encodedKey);
+
+        return encHelper;
+    }
+
     @TargetApi(23)
     public SecretKey generateSymmetricKey(String alias) {
         /*
@@ -88,7 +151,6 @@ public class EncryptionClass {
         SecretKey secretKey = null;
         try {
             secretKey = retrieveSymmetricKey(alias);
-            System.out.println(secretKey);
             if(secretKey == null) {
                 final KeyGenerator keyGenerator = KeyGenerator
                         .getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
@@ -103,7 +165,6 @@ public class EncryptionClass {
 
                 keyGenerator.init(keyGenParameterSpec);
                 secretKey = keyGenerator.generateKey();
-
             }
 
         } catch(NoSuchProviderException noProvider){
@@ -116,7 +177,33 @@ public class EncryptionClass {
         return secretKey;
     }
 
-    public String encryptSymmetric(String data, String alias){
+    public String encryptSecretKey(String asymm_alias, SecretKey secretKey){
+        String encrypted_key = "";
+        PublicKey publicKey = readPublicKey(asymm_alias);
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] bytes = cipher.doFinal(secretKey.getEncoded());
+            return Base64.encodeToString(bytes, Base64.DEFAULT);
+        } catch(NoSuchAlgorithmException noAlgorithm){
+            noAlgorithm.printStackTrace();
+        } catch(NoSuchPaddingException noPadding){
+            noPadding.printStackTrace();
+        }
+        //catch(InvalidAlgorithmParameterException invalidParam){
+        //    invalidParam.printStackTrace();
+        //}
+        catch(InvalidKeyException invalidKey){
+            invalidKey.printStackTrace();
+        }  catch(BadPaddingException badPadding){
+            badPadding.printStackTrace();
+        } catch(IllegalBlockSizeException illegalSize){
+            illegalSize.printStackTrace();
+        }
+        return null;
+    }
+
+    public String encryptSymmetric(String data, String alias, SecretKey secretK){
         /* Symmetrically encrypt data to store it on the phone and retrieve later
          * @param String data The data to be encrypted, here the Patient Details
          * @param String alias The alias under which the symmetric key shall be stored in the keystore
@@ -124,14 +211,19 @@ public class EncryptionClass {
          */
         String encryptedDataStringIV = null;
         try {
-            SecretKey secretKey = (SecretKey) generateSymmetricKey(alias);
+            SecretKey secretKey;
+            if(secretK == null) {
+                secretKey = (SecretKey) generateSymmetricKey(alias);
+            } else {
+                secretKey = secretK;
+            }
             final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 
             byte[] iv = new byte[GCM_IV_LENGTH];
             (new SecureRandom()).nextBytes(iv);
             GCMParameterSpec ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * Byte.SIZE, iv);
 
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey,  ivSpec);
             byte[] ciphertext = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             byte[] encrypted = new byte[iv.length + ciphertext.length];
             System.arraycopy(iv, 0, encrypted, 0, iv.length);
@@ -185,6 +277,7 @@ public class EncryptionClass {
             //final byte[] iv = Arrays.copyOfRange(encryptedData, 0, 128);
             //final IvParameterSpec ivSpec = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+            Log.d("ENCRYPTED DATA LEN", "" + encryptedData.length);
             byte[] decryptedData = cipher.doFinal(encryptedData, GCM_IV_LENGTH, encryptedData.length - GCM_IV_LENGTH);
             decryptedDataString = new String(decryptedData, StandardCharsets.UTF_8);
         } catch(KeyStoreException keystoreEx){
@@ -222,7 +315,6 @@ public class EncryptionClass {
             KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(alias,
                     KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    //.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .setUserAuthenticationRequired(true)
                     .build();
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
@@ -246,7 +338,7 @@ public class EncryptionClass {
         return pk_string;
     }
 
-    public String readPublicKey(String alias){
+    public String readPublicKeyToString(String alias){
         String publicKey_str = "";
         try{
             KeyPair keys = null;
@@ -255,7 +347,6 @@ public class EncryptionClass {
             KeyStore.Entry entry = keyStore.getEntry(alias, null);
             PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
             PublicKey publicKey = keyStore.getCertificate(alias).getPublicKey();
-            keys = new KeyPair(publicKey, privateKey);
             publicKey_str = new String(Base64.encode(publicKey.getEncoded(), 0));
         } catch(KeyStoreException keyStoreException){
             System.out.println("EXCEPTION1: " + keyStoreException.getMessage());
@@ -269,6 +360,30 @@ public class EncryptionClass {
             System.out.println("EXCEPTION5: " + IOException.getMessage());
         }
         return publicKey_str;
+    }
+
+    public PublicKey readPublicKey(String alias){
+        PublicKey pubKey = null;
+        try{
+            KeyPair keys = null;
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            KeyStore.Entry entry = keyStore.getEntry(alias, null);
+            PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+            PublicKey publicKey = keyStore.getCertificate(alias).getPublicKey();
+            return publicKey;
+        } catch(KeyStoreException keyStoreException){
+            System.out.println("EXCEPTION1: " + keyStoreException.getMessage());
+        } catch(UnrecoverableEntryException unrecoverableEntry){
+            System.out.println("EXCEPTION2: " + unrecoverableEntry.getMessage());
+        } catch(NoSuchAlgorithmException noAlgorithm){
+            System.out.println("EXCEPTION3: " + noAlgorithm.getMessage());
+        } catch(CertificateException certException){
+            System.out.println("EXCEPTION4: " + certException.getMessage());
+        } catch(IOException IOException){
+            System.out.println("EXCEPTION5: " + IOException.getMessage());
+        }
+        return pubKey;
     }
 
     public PrivateKey readPrivateKey(String alias){
@@ -332,15 +447,22 @@ public class EncryptionClass {
         return "ERROR READING FILE";
     }
 
+    public String getEncryptedData(PatientDetails patientModel, Context c, String filename, SecretKey secretKey){
+        String json = gson.toJson(patientModel);
+        String encryptedString = encryptSymmetric(json, "", secretKey);
+        return encryptedString;
+    }
+
     public String saveData(PatientDetails patientModel, String alias, Context c, String filename){
         String json = gson.toJson(patientModel);
-        String encryptedString = encryptSymmetric(json, alias);
+        System.out.println(json);
+        String encryptedString = encryptSymmetric(json, alias, null);
         String written = basicWrite(c, encryptedString, filename);
         return written;
     }
 
     public String saveString(String saveString, String alias, Context c, String filename){
-        String encryptedString = encryptSymmetric(saveString, alias);
+        String encryptedString = encryptSymmetric(saveString, alias, null);
         String written = basicWrite(c, encryptedString, filename);
         return written;
     }

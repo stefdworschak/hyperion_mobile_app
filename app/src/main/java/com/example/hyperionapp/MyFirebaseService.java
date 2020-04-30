@@ -40,6 +40,8 @@ public class MyFirebaseService extends FirebaseMessagingService {
     private final int NOTIFICATION_ID = 606;
     private String CHANNEL_ID = "fcm_notification";
     private static String session_id = "";
+    private static String session_shared = "";
+    private static String session_documents = "";
     /**
      * Called when message is received.
      *
@@ -70,6 +72,8 @@ public class MyFirebaseService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             Log.d(MSG_TAG, "Message data payload: " + remoteMessage.getData());
             session_id = remoteMessage.getData().get("session_id");
+            session_shared = remoteMessage.getData().get("session_shared");
+            session_documents = remoteMessage.getData().get("session_documents");
             Log.d(MSG_TAG, "Session ID from message: " + session_id);
 
             if (/* Check if data needs to be processed by long running job */ false) {
@@ -158,6 +162,9 @@ public class MyFirebaseService extends FirebaseMessagingService {
         Log.d("SESSION ID FCM", session_id);
 
         notifyIntent.putExtra("session_id", session_id);
+        notifyIntent.putExtra("session_shared", session_shared);
+        notifyIntent.putExtra("session_documents", session_documents);
+        notifyIntent.putExtra("notification_id", "" + NOTIFICATION_ID);
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
                 getApplicationContext(), OPEN_CODE_INTENT,
@@ -167,15 +174,16 @@ public class MyFirebaseService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(
                         getApplicationContext(), CHANNEL_ID);
 
-        notificationCompatBuilder.setSmallIcon(R.drawable.ic_stat_ic_notification)
+        notificationCompatBuilder.setSmallIcon(R.drawable.ic_send_black_24dp)
                         .setContentTitle("Data Sharing Request")
                         .setContentText(messageBody)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
                         .setWhen(0)
+                        .setAutoCancel(true)
+                        .setOngoing(false)
                         .setContentIntent(fullScreenPendingIntent)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setCategory(NotificationCompat.CATEGORY_CALL)
-                        .setAutoCancel(true)
                         .addAction(R.drawable.ic_file_upload_black_24dp, getString(R.string.share_notifications),
                                 fullScreenPendingIntent)
                         .setFullScreenIntent(fullScreenPendingIntent, true);

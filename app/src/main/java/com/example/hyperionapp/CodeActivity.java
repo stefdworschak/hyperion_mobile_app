@@ -3,8 +3,8 @@ package com.example.hyperionapp;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,26 +12,24 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.android.annotations.NonNull;
-import com.example.hyperionapp.ui.main.CheckedInFragment;
-import com.example.hyperionapp.ui.main.CheckinFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firestore.v1.FirestoreGrpc;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.crypto.SecretKey;
+
 public class CodeActivity extends AppCompatActivity {
     private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String CODE = "1234";
+    Gson gson = new Gson();
     EditText etCode;
     private final int NOTIFICATION_ID = 606;
     private final String CHANNEL_ID = "fcm_notification";
@@ -40,18 +38,33 @@ public class CodeActivity extends AppCompatActivity {
     private final String COLLECTION_NAME = "checkins";
     EncryptionClass encryption = new EncryptionClass();
     String session_id = "";
+    final String DATA_FILENAME = user_id + "_hyperion.enc";
+    private static String session_shared = "";
+    private static String session_documents = "";
+    private static String notification_id;
     private static FirebaseFirestore db;
     private static String TAG = "SHARING SETTINGS MSG";
+    private String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_code);
-
         Button btnConfirm = (Button) findViewById(R.id.confirmCodeBtn);
         etCode = (EditText) findViewById(R.id.etConfirmCode_text);
         session_id = getIntent().getStringExtra("session_id");
+        session_shared = getIntent().getStringExtra("session_shared");
+        session_documents = getIntent().getStringExtra("session_documents");
+
+        NotificationManager notificationManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
+        notification_id = getIntent().getStringExtra("notification_id");
+        if (notification_id != null){
+            Log.d("NOTIFICATION ID", notification_id);
+            notificationManager.cancel(Integer.parseInt(notification_id));
+        }
+
         Log.d(TAG, "SESSION_ID");
         if(session_id != null){
             Log.d(TAG, session_id);
@@ -62,6 +75,7 @@ public class CodeActivity extends AppCompatActivity {
             public void onClick(View v) {
                     String encrypted_data = encryption.basicRead(CodeActivity.this, CODE_FILENAME);
                     String userCode = encryption.decryptSymmetrically(encrypted_data, CODE_ALIAS);
+                    Log.d("USER CODE", userCode);
                     if(userCode.equalsIgnoreCase(etCode.getText().toString())) {
                         shareUserData(session_id);
                     } else {
@@ -79,6 +93,35 @@ public class CodeActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         Map<String, Object> sharing = new HashMap<>();
         sharing.put("session_shared", "2");
+        sharing.put("data_key", user_id);
+
+
+        // Logic to encrypt symm key and data and send to firebase
+        String sKey = "lingyejunAesTest";
+        String encrypted_data = encryption.basicRead(CodeActivity.this, DATA_FILENAME);
+        String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
+        String enc = "";
+        try {
+            String json_write = "";
+            /*for (int i = 0; i < json_data.length(); i++){
+                if(json_data.charAt(i) == '\"'){
+                    json_write += "'";
+                } else if(json_data.charAt(i) == '+' || json_data.charAt(i) == '\\' || json_data.charAt(i) == '-'){
+
+                }
+                else {
+                    json_write += json_data.charAt(i);
+                }
+            }
+            Log.d("OUTPUT JSON", json_write);*/
+            json_write = json_data;
+            enc = encryption.encryptUsingPassword(session_id, json_write);
+            Log.d("ENCRYPTED DATA", enc);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        MDB mongo = new MDB();
+        mongo.updatePubKey(""+user_id, enc);
         DocumentReference document = db.collection(COLLECTION_NAME).document(session_id);
         document.update(sharing)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -90,6 +133,7 @@ public class CodeActivity extends AppCompatActivity {
                 // please don't forget to define and initialize the position variable
                 // properly
                 go.putExtra("viewpager_position", 2);
+                go.putExtra("session_documents", session_documents);
                 startActivity(go);
             }
         })

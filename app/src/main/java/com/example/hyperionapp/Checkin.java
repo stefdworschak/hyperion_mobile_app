@@ -4,6 +4,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 @IgnoreExtraProperties
 public class Checkin {
@@ -11,9 +12,11 @@ public class Checkin {
     private Date session_checkin;
     private HashMap<String, String> session_details;
     private int session_shared;
+    private List<SessionDocument> session_documents;
 
 
-    public Checkin(String session_id, String symptoms, String symptoms_duration, String pain_scale, String pre_conditions, int session_shared){
+    public Checkin(String session_id, String symptoms, String symptoms_duration, String pain_scale, String pre_conditions, int session_shared,
+                    List<SessionDocument> session_documents){
         this.session_id = session_id;
         this.session_checkin = new Date();
         HashMap<String, String> temp =new HashMap<>();
@@ -23,6 +26,7 @@ public class Checkin {
         temp.put("pre_conditions", pre_conditions);
         this.session_details = temp;
         this.session_shared = session_shared;
+        this.session_documents = session_documents;
     }
 
     public String getSession_id() {
@@ -56,5 +60,13 @@ public class Checkin {
         temp.put("pain_scale", pain_scale);
         temp.put("pre_conditions", pre_conditions);
         this.session_details = temp;
+    }
+
+    public void setSession_documents(List<SessionDocument> session_documents){
+        this.session_documents = session_documents;
+    }
+
+    public List<SessionDocument> getSession_documents() {
+        return session_documents;
     }
 }
