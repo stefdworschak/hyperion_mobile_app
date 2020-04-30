@@ -1,41 +1,36 @@
 package com.example.hyperionapp.ui.main;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.hyperionapp.Checkin;
 import com.example.hyperionapp.EncryptionClass;
-import com.example.hyperionapp.MainActivity;
 import com.example.hyperionapp.PatientDetails;
-import com.example.hyperionapp.PatientRecord;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.databinding.FragmentDetailsNewBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -59,7 +54,6 @@ public class DetailsFragment extends Fragment {
     TextInputLayout elDob;
     DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 
-    PatientRecord p;
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     final String DATA_FILENAME = user_id + "_hyperion.enc";
@@ -146,6 +140,15 @@ public class DetailsFragment extends Fragment {
                 encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
             }
         });
+
+        List<Checkin> sessions = patientModel.getPatientSessions();
+        if(sessions.size() > 0){
+            for(int i = 0; i< sessions.size(); i++){
+                Log.d("PATIENT SESSION ID", sessions.get(0).getSession_id());
+            }
+        } else {
+            Log.d("PATIENT SESSION SIZE", "" + sessions.size());
+        }
 
         return v;
     }

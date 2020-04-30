@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
-        android:id="@+id/encryption"
+        android:id="@+id/cleanse_data"
         android:icon="@drawable/ic_weight_24dp"
-        android:title="Encryption Keys"
+        android:title="@string/setting_lbl1"
         app:showAsAction="never"
         />
     <item android:id="@+id/change_code"
         android:icon="@drawable/ic_height_24dp"
-        android:title="New Verification Code"
+        android:title="@string/setting_lbl2"
         app:showAsAction="never" />
 
     <item android:id="@+id/logout"
         android:icon="@drawable/ic_height_24dp"
-        android:title="Logout"
+        android:title="@string/setting_lbl3"
         app:showAsAction="never" />
 </menu>

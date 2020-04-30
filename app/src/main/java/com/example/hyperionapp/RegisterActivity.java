@@ -32,7 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
     EditText etConfirmPassword;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     final String TAG = "CREATE USER ACCOUNT";
-    final String ASYMMETRIC_ALIAS_ROOT = "hyperion_asymmetric_";
+    private String ASYMMETRIC_ALIAS_ROOT = "hyperion_asymmetric_";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -90,7 +90,8 @@ public class RegisterActivity extends AppCompatActivity {
                                 String public_key = encryption.createAndStoreKeys(
                                         getApplicationContext(),
                                         ASYMMETRIC_ALIAS_ROOT + user.getUid());
-                                //TODO: Send pub key to MongoDB
+                                MDB mongo = new MDB();
+                                mongo.updatePubKey(""+user.getUid(), public_key);
                                 Intent createCodeIntent = new Intent(
                                         RegisterActivity.this, CreateCodeActivity.class);
                                 startActivity(createCodeIntent);

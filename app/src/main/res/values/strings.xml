@@ -2,7 +2,7 @@
     <string name="app_name">Hyperion App</string>
     <string name="tab_text_1">My Details</string>
     <string name="tab_text_2">Check-In</string>
-    <string name="tab_text_3">Medical Info</string>
+    <string name="tab_text_3">Medical</string>
     <string name="share_notifications">Share</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -76,6 +76,23 @@
     <string name="password_hint">Password</string>
     <string name="confirm_password_hint">Confirm Password</string>
     <string name="create_user_btn">Create User</string>
+    <string name="my_sessions">History</string>
+    <string name="pain_scale">Pain Scale</string>
+    <string name="syptoms">Syptoms</string>
+    <string name="condition_duration">How long have you had this condition?</string>
+    <string name="successful_checkin">You have Checked-In successfully!</string>
+    <string name="end_session">End Session</string>
+    <string name="setting_lbl1">Clear All Data</string>
+    <string name="setting_lbl2">New Verification Code</string>
+    <string name="setting_lbl3">Logout</string>
+    <string name="share_data_now">Share Data Now</string>
+    <string name="share_data_automatically">Share Data Automatically</string>
+    <string name="attachments">Attachments</string>
+    <string name="diagnosis">Diagnosis</string>
+    <string name="patient_recommendation">Patient Recommendation</string>
+    <string name="session_id">Session ID</string>
+    <string name="session_date_time">Session Date/Time</string>
+    <string name="symptoms_noticed">Symptoms Noticed</string>
 
     <string-array name="bloodtype_array">
         <item>A+</item>
@@ -86,5 +103,23 @@
         <item>AB-</item>
         <item>O+</item>
         <item>O-</item>
+    </string-array>
+    <string-array name="pain_scale_array">
+        <item>Select</item>
+        <item>Very Painful</item>
+        <item>Somewhat Painful</item>
+        <item>Painful, but managable</item>
+        <item>Comes in waves</item>
+        <item>Not very painful</item>
+        <item>No pain at all</item>
+    </string-array>
+    <string-array name="duration_array">
+        <item>Select</item>
+        <item>Less than 1 hour</item>
+        <item>1 - 5 hours</item>
+        <item>5 - 12 hours</item>
+        <item>12 - 24 hours</item>
+        <item>Multiple days</item>
+        <item>Multiple weeks/months</item>
     </string-array>
 </resources>

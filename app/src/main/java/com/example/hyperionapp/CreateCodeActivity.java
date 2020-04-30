@@ -1,6 +1,7 @@
 package com.example.hyperionapp;
 
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,9 +14,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.hyperionapp.ui.main.CheckinFragment;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class CreateCodeActivity extends AppCompatActivity {
-    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private String user_id = user.getUid();
     final String CODE = "1234";
     EditText etCode;
     private final int NOTIFICATION_ID = 606;
@@ -40,7 +43,17 @@ public class CreateCodeActivity extends AppCompatActivity {
                 String saveMsg = encryption.saveString(
                         newUserCode, CODE_ALIAS, getApplicationContext(), CODE_FILENAME);
                if(saveMsg.equals("File saved successfully!")){
-                    Intent go = new Intent(CreateCodeActivity.this, MainActivity.class);
+                   Intent go;
+                   Log.d("EMAIL VERIFICATION", Boolean.toString(user.isEmailVerified()));
+                   if(user.isEmailVerified()){
+                       go = new Intent(CreateCodeActivity.this, MainActivity.class);
+                   } else {
+                       if(user != null){
+                           FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                           mAuth.signOut();
+                       }
+                       go = new Intent(CreateCodeActivity.this, LoginActivity.class);
+                   }
                    // you pass the position you want the viewpager to show in the extra,
                    // please don't forget to define and initialize the position variable
                    // properly

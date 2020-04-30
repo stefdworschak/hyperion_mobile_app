@@ -8,8 +8,11 @@
     <color name="btnGreen2">#5eba7d</color>
     <color name="btnGreen3">#3ddc84</color>
     <color name="btnGrey">#999999</color>
-    <color name="btnBlue">#24A0ED</color>
     <color name="white_overlay_8x">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="grey">#999999</color>
+    <color name="alertYellowBg">#fff3cd</color>
+    <color name="alertYellowBorder">#ffeeba</color>
+    <color name="alertYellowTxt">#856404</color>
+    <color name="btnBlue">#007bff</color>
 </resources>

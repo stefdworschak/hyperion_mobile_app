@@ -15,16 +15,20 @@
  */
 package com.example.hyperionapp.ui.main;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,23 +36,35 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.hyperionapp.CodeActivity;
+import com.example.hyperionapp.EncryptionClass;
 import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.Checkin;
+import com.example.hyperionapp.SessionDocument;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 //import com.google.firebase.database.DatabaseReference;
 //import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -58,87 +74,193 @@ public class CheckinFragment extends Fragment {
     EditText etToken;
    // private DatabaseReference mDatabase;
     private FirebaseFirestore db;
+    private PatientDetails patientModel;
+    private Checkin snapShotPayload = null;
 
+    private final String COLLECTION_NAME = "checkins";
+    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private static final String TAG = "MainActivity";
+    private String session_documents = "";
+    final String DATA_FILENAME = user_id + "_hyperion.enc";
+    final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
+    private EncryptionClass encryption = new EncryptionClass();
+    Spinner pain_scale_spinner;
+    Spinner duration_spinner;
+
+    String painScale;
+    String duration;
+    String symptoms;
+    String preConditions;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_checkin, container, false);
-        /*WebView mWebView = (WebView) v.findViewById(R.id.webView);
-        mWebView.loadUrl("https://hyperion-app.herokuapp.com/checkin/");
+        final View v = inflater.inflate(R.layout.fragment_checkin, container, false);
 
-        // Force links and redirects to open in the WebView instead of in a browser
-        mWebView.setWebViewClient(new WebViewClient());*/
-        Button bSubscribe = v.findViewById(R.id.subscribeButton);
-        Button bLogToken = v.findViewById(R.id.logTokenButton);
-        etToken = v.findViewById(R.id.editText3);
-       // mDatabase = FirebaseDatabase.getInstance().getReference();
-        db = FirebaseFirestore.getInstance();
+        final EditText etSymptoms = (EditText) v.findViewById(R.id.symptoms_text);
+        patientModel = ViewModelProviders.of(getActivity()).get(PatientDetails.class);
+        snapShotPayload = patientModel.getLatestSnapshot();
+        if(!"".equals(patientModel.getCurrentSessionID())){
+            Log.d("SHOW CHECKED IN", "True");
+            hideCheckin(v);
+            showCheckedIn(v);
+            if(snapShotPayload != null && snapShotPayload.getSession_shared() == 1){
+                showShareData(v);
+            }
+        }
 
-        bLogToken.setOnClickListener(new View.OnClickListener() {
+
+        pain_scale_spinner = (Spinner) v.findViewById(R.id.pain_scale_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.pain_scale_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        pain_scale_spinner.setAdapter(adapter);
+        pain_scale_spinner.setPrompt("How much pain do you have?");
+
+        duration_spinner = (Spinner) v.findViewById(R.id.duration_spinner);
+        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(),
+                R.array.duration_array, android.R.layout.simple_spinner_item);
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        duration_spinner.setAdapter(adapter2);
+        duration_spinner.setPrompt("How long has this been going on?");
+
+        pain_scale_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                FirebaseInstanceId.getInstance().getInstanceId()
-                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                                if (!task.isSuccessful()) {
-                                    //Log.w(TAG, "getInstanceId failed", task.getException());
-                                    Toast.makeText(getActivity().getApplicationContext(), "getInstance failed", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                painScale = parent.getItemAtPosition(position).toString();
+            }
 
-                                // Get new Instance ID token
-                                String token = task.getResult().getToken();
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
-                                // Log and toast
-                                //String msg = getString(R.string.msg_token_fmt, token);
-                                //Log.d(TAG, msg);
-                                //Toast.makeText(getActivity(), token, Toast.LENGTH_SHORT).show();
-                                etToken.setText(""+token);
-                            }
-                        });
             }
         });
+
+        duration_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                duration = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        Button bSubscribe = v.findViewById(R.id.subscribeButton);
+        final Button bEndSession = v.findViewById(R.id.endSession);
+        etToken = v.findViewById(R.id.editText3);
+        db = FirebaseFirestore.getInstance();
+        session_documents = getActivity().getIntent().getStringExtra("session_documents");
+
         bSubscribe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String sessionID = genRandom(10);
-                Log.d(TAG, "Subscribing to weather topic");
-                // [START subscribe_topics]
-                FirebaseMessaging.getInstance().subscribeToTopic(sessionID)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                String msg = getString(R.string.msg_subscribed);
-                                if (!task.isSuccessful()) {
-                                    msg = getString(R.string.msg_subscribe_failed);
+                symptoms = etSymptoms.getText().toString();
+                if ("".equals(symptoms) || "Select".equals(painScale) || "Select".equals(duration)){
+                    Toast.makeText(getContext(), "Please fill in all of the fields.", Toast.LENGTH_SHORT).show();
+                } else {
+                    final String sessionID = genRandom(10);
+                    Log.d(TAG, "Subscribing to weather topic");
+                    // [START subscribe_topics]
+                    FirebaseMessaging.getInstance().subscribeToTopic(sessionID)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
-                                } else {
-                                    Log.d(TAG, msg);
-                                    Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
-                                    // Write to Firebase Database
-                                    //https://firebase.google.com/docs/database/android/read-and-write
+                                    String msg = getString(R.string.msg_subscribed);
+                                    if (!task.isSuccessful()) {
+                                        msg = getString(R.string.msg_subscribe_failed);
+                                    } else {
+                                        Log.d(TAG, msg);
+                                        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+                                        // Write to Firebase Database
+                                        //https://firebase.google.com/docs/database/android/read-and-write
+                                        String pre_conditions = patientModel.getPreconditions();
 
-                                    String symptoms = "";
-                                    String symptoms_duration = "";
-                                    String pain_scale = "";
-                                    String pre_conditions = "";
-                                    int session_shared = 0;
-                                    Log.d("Session ID", sessionID);
-                                    Checkin checkin = new Checkin(sessionID, symptoms, symptoms_duration, pain_scale, pre_conditions, session_shared);
-                                    //Log.d(TAG, ""+checkin.getSession_shared());
-                                    setDocument(db, checkin);
+                                        int session_shared = 0;
+                                        Log.d("Session ID", sessionID);
+                                        List<SessionDocument> session_documents = new ArrayList<>();
+                                        Checkin checkin = new Checkin(sessionID, symptoms, duration, painScale, pre_conditions, session_shared, session_documents);
+                                        setDocument(db, checkin);
+                                        // Add to session to user
+                                        List<Checkin> sessions = patientModel.getPatientSessions();
+                                        sessions.add(checkin);
+                                        patientModel.setPatientSessions(sessions);
+                                        patientModel.setCurrentSessionID(sessionID);
+                                        patientModel.setLatestSnapshot(checkin);
+                                        String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
+
+                                        Log.d("Checkin Message", saveMsg);
+                                        hideCheckin(v);
+                                        showCheckedIn(v);
+                                        updateFromSnapshot(db, patientModel, sessionID, v);
+
+                                    }
                                 }
-                            }
-                        });
-
+                            });
+                }
                 // [END subscribe_topics]
             }
         });
 
+        bEndSession.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String session_id = patientModel.getCurrentSessionID();
+                patientModel.setCurrentSessionID("");
+                patientModel.setLatestSnapshot(null);
+                String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
+                db = FirebaseFirestore.getInstance();
+                Map<String, Object> sharing = new HashMap<>();
+                sharing.put("session_shared", "3");
+                DocumentReference document = db.collection(COLLECTION_NAME).document(session_id);
+                document.update(sharing).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        hideCheckedIn(v);
+                        showCheckin(v);
+                        hideShareData(v);
+                    }
+                });
+            }
+        });
+
         return v;
+    }
+
+    public static void hideCheckin(View v){
+        ScrollView svCheckin = v.findViewById(R.id.checkin_view);
+        svCheckin.setVisibility(View.GONE);
+    }
+
+    public static void showCheckedIn(View v){
+        ScrollView svCheckedIn = v.findViewById(R.id.checkedin_view);
+        svCheckedIn.setVisibility(View.VISIBLE);
+    }
+
+    public static void showCheckin(View v){
+        ScrollView svCheckin = v.findViewById(R.id.checkin_view);
+        svCheckin.setVisibility(View.VISIBLE);
+    }
+
+    public static void hideCheckedIn(View v){
+        ScrollView svCheckedIn = v.findViewById(R.id.checkedin_view);
+        svCheckedIn.setVisibility(View.GONE);
+    }
+
+    public static void hideShareData(View v){
+        LinearLayout lyShareData = v.findViewById(R.id.share_data);
+        lyShareData.setVisibility(View.GONE);
+    }
+
+    public static void showShareData(View v){
+        LinearLayout lyShareData = v.findViewById(R.id.share_data);
+        lyShareData.setVisibility(View.VISIBLE);
     }
 
     public static String genRandom(int num){
@@ -180,6 +302,69 @@ public class CheckinFragment extends Fragment {
                     }
                 });
         // [END set_document]
+    }
+
+    public void updateFromSnapshot(FirebaseFirestore db, PatientDetails patientModel, String sessionID, View v){
+        // Reference: https://firebase.google.com/docs/firestore/query-data/listen
+        final DocumentReference document = db.collection("checkins").document(sessionID);
+        document.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Map<String, Object> newSnapshot = snapshot.getData();
+                    JSONObject jsonSnapshot = new JSONObject(newSnapshot);
+                    Checkin snapShotPayload = patientModel.getLatestSnapshot();
+                    if(snapShotPayload != newSnapshot){
+                        Log.d(TAG, "Current data: " + newSnapshot);
+                        Gson gson = new Gson();
+                        Checkin c = gson.fromJson(jsonSnapshot.toString(), Checkin.class);
+                        snapShotPayload = c;
+                        Log.d("UPDATED DOCUMENTS", c.getSession_id());
+                        if(c.getSession_shared() != 2) {
+                            patientModel.setLatestSnapshot(c);
+                            // Save latest snapshot in patient model
+                            //Nobody, but the user should be able to change the session shared to 2
+                            // 2 = data shared
+                            if (c.getSession_shared() != 2) {
+                                Log.d("CHNG SESSION STATUS", "" + c.getSession_shared());
+                                if (c.getSession_shared() == 1) {
+                                    showShareData(v);
+                                }
+                                if (c.getSession_shared() == 3) {
+                                    showCheckin(v);
+                                    hideCheckedIn(v);
+                                }
+                            }
+
+                            patientModel.setCurrentSessionID("");
+                            patientModel.setLatestSnapshot(null);
+                            String msg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
+                        }
+                        // Handle status changes with de registration registration.remove()
+
+
+                        // Set snapshot on App restart for the last session
+                        // Set snapshot on code activity
+                        // add to patient model
+                        // Save patientModel
+
+                    } else {
+                        if(snapShotPayload.getSession_shared() == 2){
+                            hideShareData(v);
+                        }
+                        Log.d("PAYLOAD: ", "NO CHANGES");
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
     }
 
 }

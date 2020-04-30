@@ -1,10 +1,14 @@
 package com.example.hyperionapp;
 
+import android.util.Log;
+
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.ViewModel;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class PatientDetails extends ViewModel {
 
@@ -38,46 +42,83 @@ public class PatientDetails extends ViewModel {
     ObservableField<Boolean> smoker;
     ObservableField<Boolean> cancer;
     String userCode;
-
-
+    String currentSessionID;
+    Checkin latestSnapshot;
     //Patient Records
-    List<PatientRecord> patientRecords;
+    List<Checkin> patientSessions;
 
     public PatientDetails() {
         //Personal Details
-        name = new ObservableField<>();
-        email = new ObservableField<>();
-        dateOfBirth = null;
-        address = new ObservableField<>();
-        address2 = new ObservableField<>();
-        city = new ObservableField<>();
-        postCode = new ObservableField<>();
-        PPSNumber = new ObservableField<>();
-        insurance = new ObservableField<>();
+        this.name = new ObservableField<>();
+        this.email = new ObservableField<>();
+        this.dateOfBirth = null;
+        this.address = new ObservableField<>();
+        this.address2 = new ObservableField<>();
+        this.city = new ObservableField<>();
+        this.postCode = new ObservableField<>();
+        this.PPSNumber = new ObservableField<>();
+        this.insurance = new ObservableField<>();
         //Medical Details
-        bloodType = "";
-        allergies = new ObservableField<>();
-        otherConditions = new ObservableField<>();
-        medications = new ObservableField<>();
-        height = new ObservableField<>();
-        weight = new ObservableField<>();
-        registeredGP = new ObservableField<>();
+        this.bloodType = "";
+        this.allergies = new ObservableField<>();
+        this.otherConditions = new ObservableField<>();
+        this.medications = new ObservableField<>();
+        this.height = new ObservableField<>();
+        this.weight = new ObservableField<>();
+        this.registeredGP = new ObservableField<>();
 
         //Medical Conditions Checkboxes
-        tubercolosis = new ObservableField<>();
-        diabetes = new ObservableField<>();
-        heartCondition = new ObservableField<>();
-        gloucoma = new ObservableField<>();
-        epilepsy = new ObservableField<>();
-        drugAlcoholAbuse = new ObservableField<>();
-        smoker = new ObservableField<>();
-        cancer = new ObservableField<>();
-        
+        this.tubercolosis = new ObservableField<>();
+        this.diabetes = new ObservableField<>();
+        this.heartCondition = new ObservableField<>();
+        this.gloucoma = new ObservableField<>();
+        this.epilepsy = new ObservableField<>();
+        this.drugAlcoholAbuse = new ObservableField<>();
+        this.smoker = new ObservableField<>();
+        this.cancer = new ObservableField<>();
+
+        this.patientSessions = new ArrayList<Checkin>();
+        this.currentSessionID = "";
+        this.latestSnapshot = null;
     }
+
+    public Checkin findSessionById(String sessionID){
+        Log.d("DOC SIZE", ""+this.patientSessions.size());
+        for (int i = 0; i < this.patientSessions.size(); i++){
+            Log.d("INTERNAL ID", this.patientSessions.get(i).getSession_id());
+            Log.d("EXTERNAL ID",sessionID);
+            Log.d("INT EXT CHECK", ""+this.patientSessions.get(i).getSession_id().equals(sessionID));
+            if(this.patientSessions.get(i).getSession_id().equals(sessionID)) {
+                Checkin c = this.patientSessions.get(i);
+                return c;
+            }
+        }
+        return null;
+    }
+
+    /*public Boolean updateSessionById(Map<String, String> session){
+       /* List<Checkin> updated_list = new ArrayList<>();
+        for(int i = 0; i < this.patientSessions.size(); i++){
+            Checkin s = this.patientSessions.get(i);
+            if(s.getSession_id() == session.get("session_id")){
+                if(session.get("session_shared") != "2"){
+                    s.setSession_shared(Integer.parseInt(session.get("session_shared")));
+                }
+                String documents = session.get("session_documents");
+                for(int j = 0; j < .size(); j++)
+                SessionDocument document = new SessionDocument();
+                document.setDocument_hash(session.get("document_hash"));
+                document.setDocument_name(session.get("document_name"));
+                document.setDocument_type(session.get("document_type"));
+                documents.
+        }
+        return true;
+    }*/
+
 
     public void setPersonalDetails(
             String name, String email, Date dateOfBirth, String address, String address2,
-            String city, String postCode, String PPSNumber, String insurance
+            String city, String postCode, String PPSNumber, String insurance, String currentSessionID
     ){
         this.name.set(name);
         this.email.set(email);
@@ -87,7 +128,8 @@ public class PatientDetails extends ViewModel {
         this.city.set(city);
         this.postCode.set(postCode);
         this.PPSNumber.set(PPSNumber);
-        this. insurance.set(insurance);
+        this.insurance.set(insurance);
+        this.currentSessionID = currentSessionID;
     }
 
     public void setMedicalDetails(
@@ -112,6 +154,23 @@ public class PatientDetails extends ViewModel {
         this.height.set(height);
         this.weight.set(weight);
         this.registeredGP.set(registeredGP);
+    }
+
+    public String getPreconditions(){
+        String preConditions = "";
+        if(!"".equals(this.allergies.get())){ preConditions += this.allergies.get() + ", "; }
+        if(this.tubercolosis.get() != null  && this.tubercolosis.get() == true){ preConditions += "Tuberculosis, "; }
+        if(this.heartCondition.get() != null  && this.heartCondition.get() == true){ preConditions += "Heart Condition, "; }
+        if(this.gloucoma.get() != null  && this.gloucoma.get() == true){ preConditions += "Gloucoma, "; }
+        if(this.drugAlcoholAbuse.get() != null  && this.drugAlcoholAbuse.get() == true){ preConditions += "Drug/Alcohol Abuse, "; }
+        if(this.smoker.get() != null  && this.smoker.get() == true){ preConditions += "Smoker, "; }
+        if(this.cancer.get() != null  && this.cancer.get() == true){ preConditions += "Cancer, "; }
+        if(!"".equals(this.otherConditions.get())){ preConditions += this.otherConditions.get() + ","; }
+        Log.d("preConditions", preConditions);
+        if(preConditions.length() > 0 && ",".equals(preConditions.charAt(preConditions.length() - 1))) {
+            preConditions = preConditions.substring(0, preConditions.length() - 2);
+        }
+        return preConditions;
     }
 
     public String getName(){
@@ -158,13 +217,9 @@ public class PatientDetails extends ViewModel {
         this.otherConditions.set(otherConditions);
     }
 
-    public void setPatientRecords(List<PatientRecord> patientRecords) {
-        this.patientRecords = patientRecords;
+    public void setPatientSessions(List<Checkin> patientSessions) {
+        this.patientSessions = patientSessions;
     }
-
-    /*public String getName() {
-        return name;
-    }*/
 
     public void setName(String name) {
         this.name.set(name);
@@ -250,8 +305,8 @@ public class PatientDetails extends ViewModel {
         this.registeredGP.set(registeredGP);
     }
 
-    public List<PatientRecord> getPatientRecords() {
-        return patientRecords;
+    public List<Checkin> getPatientSessions() {
+        return patientSessions;
     }
 
     public Boolean getTubercolosis() {
@@ -321,4 +376,12 @@ public class PatientDetails extends ViewModel {
     public String getUserCode() { return userCode; }
 
     public void setUserCode(String userCode) { this.userCode = userCode; }
+
+    public String getCurrentSessionID() { return currentSessionID; }
+
+    public void setCurrentSessionID(String currentSessionID) { this.currentSessionID = currentSessionID; }
+
+    public Checkin getLatestSnapshot() { return latestSnapshot; }
+
+    public void setLatestSnapshot(Checkin latestSnapshot) { this.latestSnapshot = latestSnapshot; }
 }
