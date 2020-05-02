@@ -36,48 +36,48 @@ import java.util.Locale;
 
 /*
     References:
-    SQLITE: https://developer.android.com/training/data-storage/sqlite
-    SPINNER: https://developer.android.com/guide/topics/ui/controls/spinner
     DATA BINDING: https://www.youtube.com/watch?v=pRaFlVCB87k&list=PLJJzW__bab3Q8jYR7dJnNUeoGpHN2Ei1n&index=3
     DATA BINDING with FRAGMENT: https://stackoverflow.com/questions/34706399/how-to-use-data-binding-with-fragment
 
  */
 
 public class DetailsFragment extends Fragment {
-    Gson gson = new Gson();
+    /* Fragment UI logic for adding the patient's personal details */
+
+    // Declare class variables
     private PatientDetails patientModel;
     private FragmentDetailsNewBinding fragmentDetailsNewBinding;
-    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
     DatePickerDialog picker;
-    EditText etDob;
-    TextInputLayout elDob;
-    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 
+    // Declare and instantiate class constants
+    final private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
-    final String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     final String DATA_FILENAME = user_id + "_hyperion.enc";
-    EncryptionClass encryption = new EncryptionClass();
+    final EncryptionClass encryption = new EncryptionClass();
+    final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        // Reference1: https://www.youtube.com/watch?v=pRaFlVCB87k&list=PLJJzW__bab3Q8jYR7dJnNUeoGpHN2Ei1n&index=3
+        // Reference2: https://stackoverflow.com/questions/34706399/how-to-use-data-binding-with-fragment
+        // Create the data Data Binding model used for capturing the information from the UI
+        // without having to write individual onChangeListeners for each field apart from a few exceptions
         fragmentDetailsNewBinding = DataBindingUtil.inflate(inflater,
                 R.layout.fragment_details_new, container, false);
+        // Instantiate viewModel
         patientModel = ViewModelProviders.of(getActivity()).get(PatientDetails.class);
+        // Create view from Binding and set the Binding's data to the patientModel
         View v = fragmentDetailsNewBinding.getRoot();
-
         fragmentDetailsNewBinding.setPatientModel(patientModel);
-        String dobSelect = null;
-        elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
-        etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
+
+        TextInputLayout elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
+        EditText etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
         etDob.setInputType(InputType.TYPE_NULL);
         Button btnSave = (Button) v.findViewById(R.id.save_button);
         Date dob = patientModel.getDateOfBirth();
-
         if(dob != null) {
-            dobSelect = null;
             etDob.setText(dateFormat.format(dob));
         }
 
@@ -93,15 +93,12 @@ public class DetailsFragment extends Fragment {
                     int year = cldr.get(Calendar.YEAR);
                     // date picker dialog
                     picker = new DatePickerDialog(getActivity(),
-                            new DatePickerDialog.OnDateSetListener() {
-                                @Override
-                                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                    etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
-                                    cldr.set(year, monthOfYear, dayOfMonth);
-                                    cldr.getTime();
-                                    Date dob = (Date) cldr.getTime();
-                                    patientModel.setDateOfBirth(dob);
-                                }
+                            (DatePicker view, int yr, int monthOfYear, int dayOfMonth) -> {
+                                etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + yr);
+                                cldr.set(yr, monthOfYear, dayOfMonth);
+                                cldr.getTime();
+                                Date dob = (Date) cldr.getTime();
+                                patientModel.setDateOfBirth(dob);
                             }, year, month, day);
                     picker.show();
                 }
@@ -119,37 +116,19 @@ public class DetailsFragment extends Fragment {
                 int month = cldr.get(Calendar.MONTH);
                 int year = cldr.get(Calendar.YEAR);
                 picker = new DatePickerDialog(getActivity(),
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
-                                cldr.set(year, monthOfYear, dayOfMonth);
-                                cldr.getTime();
-                                Date dob = (Date) cldr.getTime();
-                                patientModel.setDateOfBirth(dob);
-                            }
+                        (DatePicker view, int yr, int monthOfYear, int dayOfMonth) -> {
+                            etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + yr);
+                            cldr.set(yr, monthOfYear, dayOfMonth);
+                            cldr.getTime();
+                            Date dob = (Date) cldr.getTime();
+                            patientModel.setDateOfBirth(dob);
                         }, year, month, day);
                 picker.show();
             }
         });
 
-
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
-            }
-        });
-
-        List<Checkin> sessions = patientModel.getPatientSessions();
-        if(sessions.size() > 0){
-            for(int i = 0; i< sessions.size(); i++){
-                Log.d("PATIENT SESSION ID", sessions.get(0).getSession_id());
-            }
-        } else {
-            Log.d("PATIENT SESSION SIZE", "" + sessions.size());
-        }
-
+        btnSave.setOnClickListener((View view) -> encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME));
+        // Render view
         return v;
     }
 }

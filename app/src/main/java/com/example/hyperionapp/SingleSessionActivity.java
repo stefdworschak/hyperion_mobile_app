@@ -12,23 +12,17 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.hash.Hashing;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SingleSession extends AppCompatActivity {
+public class SingleSessionActivity extends AppCompatActivity {
     EncryptionClass encryption = new EncryptionClass();
     private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
@@ -41,11 +35,12 @@ public class SingleSession extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        checkLoggedin(FirebaseAuth.getInstance().getCurrentUser());
         session_id = getIntent().getStringExtra("session_id");
         session_status = getIntent().getStringExtra("session_status");
         setContentView(R.layout.activity_document);
 
-        String encrypted_data = encryption.basicRead(SingleSession.this, DATA_FILENAME);
+        String encrypted_data = encryption.basicRead(SingleSessionActivity.this, DATA_FILENAME);
         String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
         //String json_data = null;
         PatientDetails p;
@@ -128,5 +123,11 @@ public class SingleSession extends AppCompatActivity {
             }
         });
         return null;
+    }
+    private void checkLoggedin(FirebaseUser user){
+        if(user == null){
+            Intent redirect = new Intent(SingleSessionActivity.this, LoginActivity.class);
+            startActivity(redirect);
+        }
     }
 }

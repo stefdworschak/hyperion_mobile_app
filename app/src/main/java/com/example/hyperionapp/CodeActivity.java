@@ -17,6 +17,7 @@ import com.android.annotations.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
@@ -51,6 +52,8 @@ public class CodeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        checkLoggedin(FirebaseAuth.getInstance().getCurrentUser());
+
         setContentView(R.layout.activity_code);
         Button btnConfirm = (Button) findViewById(R.id.confirmCodeBtn);
         etCode = (EditText) findViewById(R.id.etConfirmCode_text);
@@ -145,5 +148,11 @@ public class CodeActivity extends AppCompatActivity {
                 });
 
 
+    }
+    private void checkLoggedin(FirebaseUser user){
+        if(user == null){
+            Intent redirect = new Intent(CodeActivity.this, LoginActivity.class);
+            startActivity(redirect);
+        }
     }
 }

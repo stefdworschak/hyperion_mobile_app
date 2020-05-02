@@ -12,7 +12,8 @@ import java.util.Map;
 
 public class PatientDetails extends ViewModel {
 
-    //Personal Details
+    // Declare class attributes
+    // Personal Details
     ObservableField<String> name;
     ObservableField<String> email;
     Date dateOfBirth;
@@ -23,7 +24,7 @@ public class PatientDetails extends ViewModel {
     ObservableField<String> PPSNumber;
     ObservableField<String> insurance;
 
-    //Medical Details
+    // Medical Details
     String bloodType;
     ObservableField<String> allergies;
     ObservableField<String> otherConditions;
@@ -32,7 +33,7 @@ public class PatientDetails extends ViewModel {
     ObservableField<String> weight;
     ObservableField<String> registeredGP;
 
-    //Medical Conditions Checkboxes
+    // Medical Conditions Checkboxes
     ObservableField<Boolean> tubercolosis;
     ObservableField<Boolean> diabetes;
     ObservableField<Boolean> heartCondition;
@@ -41,11 +42,13 @@ public class PatientDetails extends ViewModel {
     ObservableField<Boolean> drugAlcoholAbuse;
     ObservableField<Boolean> smoker;
     ObservableField<Boolean> cancer;
-    String userCode;
+
+    // Patient Records
+    List<Checkin> patientSessions;
+
+    // Ongoing session details
     String currentSessionID;
     Checkin latestSnapshot;
-    //Patient Records
-    List<Checkin> patientSessions;
 
     public PatientDetails() {
         //Personal Details
@@ -96,25 +99,15 @@ public class PatientDetails extends ViewModel {
         return null;
     }
 
-    /*public Boolean updateSessionById(Map<String, String> session){
-       /* List<Checkin> updated_list = new ArrayList<>();
-        for(int i = 0; i < this.patientSessions.size(); i++){
-            Checkin s = this.patientSessions.get(i);
-            if(s.getSession_id() == session.get("session_id")){
-                if(session.get("session_shared") != "2"){
-                    s.setSession_shared(Integer.parseInt(session.get("session_shared")));
-                }
-                String documents = session.get("session_documents");
-                for(int j = 0; j < .size(); j++)
-                SessionDocument document = new SessionDocument();
-                document.setDocument_hash(session.get("document_hash"));
-                document.setDocument_name(session.get("document_name"));
-                document.setDocument_type(session.get("document_type"));
-                documents.
+    public Checkin updateSessionById(Checkin newSession){
+        for (int i = 0; i < this.patientSessions.size(); i++){
+            if(this.patientSessions.get(i).getSession_id().equals(newSession.getSession_id())) {
+                this.patientSessions.set(i, newSession);
+                return this.patientSessions.get(i);
+            }
         }
-        return true;
-    }*/
-
+        return null;
+    }
 
     public void setPersonalDetails(
             String name, String email, Date dateOfBirth, String address, String address2,
@@ -158,14 +151,14 @@ public class PatientDetails extends ViewModel {
 
     public String getPreconditions(){
         String preConditions = "";
-        if(!"".equals(this.allergies.get())){ preConditions += this.allergies.get() + ", "; }
+        if(this.allergies.get() != null && !"".equals(this.allergies.get())){ preConditions += this.allergies.get() + ", "; }
         if(this.tubercolosis.get() != null  && this.tubercolosis.get() == true){ preConditions += "Tuberculosis, "; }
         if(this.heartCondition.get() != null  && this.heartCondition.get() == true){ preConditions += "Heart Condition, "; }
         if(this.gloucoma.get() != null  && this.gloucoma.get() == true){ preConditions += "Gloucoma, "; }
         if(this.drugAlcoholAbuse.get() != null  && this.drugAlcoholAbuse.get() == true){ preConditions += "Drug/Alcohol Abuse, "; }
         if(this.smoker.get() != null  && this.smoker.get() == true){ preConditions += "Smoker, "; }
         if(this.cancer.get() != null  && this.cancer.get() == true){ preConditions += "Cancer, "; }
-        if(!"".equals(this.otherConditions.get())){ preConditions += this.otherConditions.get() + ","; }
+        if(this.otherConditions.get() != null && !"".equals(this.otherConditions.get())){ preConditions += this.otherConditions.get() + ","; }
         Log.d("preConditions", preConditions);
         if(preConditions.length() > 0 && ",".equals(preConditions.charAt(preConditions.length() - 1))) {
             preConditions = preConditions.substring(0, preConditions.length() - 2);
@@ -372,10 +365,6 @@ public class PatientDetails extends ViewModel {
     public void setCancer(Boolean cancer) {
         this.cancer.set(cancer);
     }
-
-    public String getUserCode() { return userCode; }
-
-    public void setUserCode(String userCode) { this.userCode = userCode; }
 
     public String getCurrentSessionID() { return currentSessionID; }
 
