@@ -29,12 +29,12 @@ public class CodeActivity extends AppCompatActivity {
     private final String CODE_ALIAS = "user_code_" + user_id;
     private final String CODE_FILENAME = user_id + "code.enc";
     private final String COLLECTION_NAME = "checkins";
-    private final EncryptionClass encryption = new EncryptionClass();
+    private final EncryptionService encryption = new EncryptionService();
     private final String DATA_FILENAME = user_id + "_hyperion.enc";
     private final RegisterActivity reg = new RegisterActivity();
     private final LoginActivity login = new LoginActivity();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final MDB mongo = new MDB();
+    private final MDBService mongo = new MDBService();
 
     // Declare and instantiate class attributes
     String session_id = "";
@@ -76,7 +76,7 @@ public class CodeActivity extends AppCompatActivity {
         btnConfirm.setOnClickListener((View v) -> {
             // Read and decrypt the user code from the encrypted local file
             String encrypted_data = encryption.basicRead(CodeActivity.this, CODE_FILENAME);
-            String userCode = encryption.decryptSymmetrically(encrypted_data, CODE_ALIAS);
+            String userCode = encryption.decryptSymmetric(encrypted_data, CODE_ALIAS);
 
             // If the entered code is the same as the saved code
             if(userCode.equalsIgnoreCase(etCode.getText().toString())) {
@@ -114,7 +114,7 @@ public class CodeActivity extends AppCompatActivity {
 
         // Read the data from the encrypted local file and decrypt it
         String encrypted_data = encryption.basicRead(CodeActivity.this, DATA_FILENAME);
-        String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
+        String json_data = encryption.decryptSymmetric(encrypted_data, SYMMETRIC_ALIAS);
         // Declare and instantiate a new variable that will store the re-encrypted data
         String enc = "";
         try {
@@ -125,7 +125,7 @@ public class CodeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         // Store the encrypted data under the FirebaseUser id in MongoDB
-        mongo.updatePubKey(""+user_id, enc);
+        mongo.updateData(""+user_id, enc);
         // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
         // Update the FirebaseFirestore document with the updated information
         DocumentReference document = db.collection(COLLECTION_NAME).document(session_id);

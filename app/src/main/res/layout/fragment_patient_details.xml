@@ -106,9 +106,9 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:textColor="@color/btnGrey"
                             android:button="@drawable/checkbox_selector_new"
                             android:paddingLeft="4dip"
-                            android:text="@string/tubercolosis"
+                            android:text="@string/tuberculosis"
                             android:layout_marginBottom="8dp"
-                            android:checked="@={patientModel.tubercolosis}" />
+                            android:checked="@={patientModel.tuberculosis}" />
                         <CheckBox
                             android:id="@+id/diabetes_checkbox"
                             android:layout_width="fill_parent"
@@ -149,9 +149,9 @@ https://github.com/material-components/material-components-android-codelabs/blob
                             android:textColor="@color/btnGrey"
                             android:button="@drawable/checkbox_selector_new"
                             android:paddingLeft="4dip"
-                            android:text="@string/gloucoma"
+                            android:text="@string/glaucoma"
                             android:layout_marginBottom="8dp"
-                            android:checked="@={patientModel.gloucoma}"/>
+                            android:checked="@={patientModel.glaucoma}"/>
                     </LinearLayout>
 
                     <LinearLayout

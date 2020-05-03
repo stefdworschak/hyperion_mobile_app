@@ -6,7 +6,6 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import com.example.hyperionapp.EncryptionClass;
+import com.example.hyperionapp.EncryptionService;
 import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.databinding.FragmentPatientDetailsBinding;
@@ -32,7 +31,7 @@ public class PatientDetailsFragment extends Fragment {
     final private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String DATA_FILENAME = user_id + "_hyperion.enc";
-    final private EncryptionClass encryption = new EncryptionClass();
+    final private EncryptionService encryption = new EncryptionService();
 
     @Nullable
     @Override

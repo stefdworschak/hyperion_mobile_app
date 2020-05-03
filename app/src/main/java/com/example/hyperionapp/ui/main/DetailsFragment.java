@@ -3,7 +3,6 @@ package com.example.hyperionapp.ui.main;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,21 +15,17 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.hyperionapp.Checkin;
-import com.example.hyperionapp.EncryptionClass;
+import com.example.hyperionapp.EncryptionService;
 import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.databinding.FragmentDetailsNewBinding;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 
@@ -53,7 +48,7 @@ public class DetailsFragment extends Fragment {
     final private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String DATA_FILENAME = user_id + "_hyperion.enc";
-    final EncryptionClass encryption = new EncryptionClass();
+    final EncryptionService encryption = new EncryptionService();
     final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 
     @Nullable

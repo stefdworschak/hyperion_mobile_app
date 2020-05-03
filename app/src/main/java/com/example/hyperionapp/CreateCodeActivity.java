@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,7 +18,7 @@ public class CreateCodeActivity extends AppCompatActivity {
     private String user_id = user.getUid();
     private final String CODE_ALIAS = "user_code_" + user_id;
     private final String CODE_FILENAME = user_id + "code.enc";
-    EncryptionClass encryption = new EncryptionClass();
+    EncryptionService encryption = new EncryptionService();
     RegisterActivity reg = new RegisterActivity();
 
 

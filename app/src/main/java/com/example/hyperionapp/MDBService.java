@@ -20,35 +20,45 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MDB {
-    private Long id;
+public class MDBService {
+    /* Class to handle all MongoDB interaction logic */
+
+    // Declare class variables
     private StitchAppClient client = null;
     private RemoteMongoClient mongoClient;
     private RemoteMongoCollection<Document> coll;
-    public MDB(){
+
+    // Reference: https://stitch.mongodb.com/groups/5ce9815df2a30b088ae5512d/apps/5ea59899af32d22ec9d1b556/sdks/android
+    public MDBService(){
+        /* Class contructor */
+
+        // If the client is not configured yet, configure the client
         if(client == null) {
-            client = Stitch.initializeDefaultAppClient("hyperion-nhlat");
+            // Load the configurations from the BuildConfig
+            client = Stitch.initializeDefaultAppClient(BuildConfig.MONGODB);
             mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
-            coll = mongoClient.getDatabase("hyperion").getCollection("hyperion_auth");
+            coll = mongoClient.getDatabase(BuildConfig.MONGODB_DB).getCollection(BuildConfig.MONGODB_COL);
         }
     }
 
-    public void updatePubKey(String user_id, String pub_key){
+    // Reference: https://stitch.mongodb.com/groups/5ce9815df2a30b088ae5512d/apps/5ea59899af32d22ec9d1b556/sdks/android
+    // Login with Credentials -> Update Record -> Find records for owner_id
+    public void updateData(String user_id, String data){
         this.client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
                 new Continuation<StitchUser, Task<RemoteUpdateResult>>() {
                     @Override
                     public Task<RemoteUpdateResult> then(@NonNull Task<StitchUser> task) throws Exception {
+                        // If the login was unsuccessful throw an error
                         if (!task.isSuccessful()) {
                             throw task.getException();
                         }
-
-                        id = System.currentTimeMillis()/1000;
+                        // Otherwise
+                        // Create a document as filer to find the record with the right owner_id
                         Document filterDoc = new Document().append("owner_id", user_id);
-                        final Document updateDoc = new Document(
-                                "owner_id",
-                                user_id
-                        );
-                        updateDoc.put("key", pub_key);
+                        // Create a new document to use for the update that stores owner_id and data
+                        final Document updateDoc = new Document("owner_id", user_id);
+                        updateDoc.put("data", data);
+                        // Update the document, upsert if record does not exist
                         return coll.updateOne(
                                 filterDoc, updateDoc, new RemoteUpdateOptions().upsert(true)
                         );
@@ -57,11 +67,15 @@ public class MDB {
         ).continueWithTask(new Continuation<RemoteUpdateResult, Task<List<Document>>>() {
             @Override
             public Task<List<Document>> then(@NonNull Task<RemoteUpdateResult> task) throws Exception {
+                // If the update was unsuccessful throw an error
                 if (!task.isSuccessful()) {
+                    // Write an error to the console as well
                     Log.e("STITCH", "Update failed!", task.getException());
                     throw task.getException();
                 }
+                // Create a new list of documents to store the results of the find()
                 List<Document> docs = new ArrayList<>();
+                // Find all documents for the specified owner_id (should only return one)
                 return coll
                         .find(new Document("owner_id", user_id))
                         .limit(100)
@@ -70,11 +84,11 @@ public class MDB {
         }).addOnCompleteListener(new OnCompleteListener<List<Document>>() {
             @Override
             public void onComplete(@NonNull Task<List<Document>> task) {
+                // If the find() operation was successful return
                 if (task.isSuccessful()) {
-                    Log.d("STITCH", "Found docs: " + task.getResult().toString());
                     return;
                 }
-                Log.e("STITCH", "Error: " + task.getException().toString());
+                // Otherwise print StackTrace
                 task.getException().printStackTrace();
             }
         });

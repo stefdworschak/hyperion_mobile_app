@@ -24,6 +24,16 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Reference: https://developer.android.com/studio/build/gradle-tips#share-custom-fields-and-resource-values-with-your-app-code
+            // Reference: https://stackoverflow.com/a/47553410
+            buildConfigField("String", 'MONGODB', "\"${MongoDBAppClient}\"")
+            buildConfigField("String", 'MONGODB_DB', "\"${MongoDB_Database}\"")
+            buildConfigField("String", 'MONGODB_COL', "\"${MongoDB_Collection}\"")
+        }
+        debug {
+            buildConfigField("String", 'MONGODB', "\"${MongoDBAppClient}\"")
+            buildConfigField("String", 'MONGODB_DB', "\"${MongoDB_Database}\"")
+            buildConfigField("String", 'MONGODB_COL', "\"${MongoDB_Collection}\"")
         }
     }
     useLibrary 'android.test.base'

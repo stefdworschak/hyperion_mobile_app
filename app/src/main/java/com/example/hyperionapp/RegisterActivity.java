@@ -35,7 +35,6 @@ public class RegisterActivity extends AppCompatActivity {
     EditText etConfirmPassword;
     // Declare and instantiate class constants
     final String TAG = "CREATE USER ACCOUNT";
-    private String ASYMMETRIC_ALIAS_ROOT = "hyperion_asymmetric_";
     // Declare and instantiate Firebase Instance
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
@@ -113,15 +112,6 @@ public class RegisterActivity extends AppCompatActivity {
                         if(user != null) {
                             // Call class method to send a verification email to the new user
                             sendEmailVerification(user);
-                            // Declare and Instantiate the Encryption class which handles
-                            // all functionality for encrypting/decrypting data and
-                            // saving/reading the data from the local data file
-                            EncryptionClass encryption = new EncryptionClass();
-                            // Create a new private/public key pair for the user
-                            // and store them in the Android Keystore
-                            String public_key = encryption.createAndStoreKeys(
-                                    getApplicationContext(),
-                                    ASYMMETRIC_ALIAS_ROOT + user.getUid());
                             // Redirect the user to the CreateCodeActivity with which the
                             // User will create their 2-factor authentication key
                             Intent createCodeIntent = new Intent(

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     private String user_id = user.getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String DATA_FILENAME = user_id + "_hyperion.enc";
-    private EncryptionClass encryption = new EncryptionClass();
+    private EncryptionService encryption = new EncryptionService();
     Gson gson = new Gson();
     LoginActivity login = new LoginActivity();
 
@@ -66,12 +67,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         viewPager.setCurrentItem(view_page);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-
+        Log.d("MONGOCLIENT", BuildConfig.MONGODB);
         // Read the user's saved encrypted file contents from the App storage
         String encrypted_data = encryption.basicRead(MainActivity.this, DATA_FILENAME);
         // Decrypt the data retrieved from the file using the Symmetric key from the Android
         // Keystore
-        String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
+        String json_data = encryption.decryptSymmetric(encrypted_data, SYMMETRIC_ALIAS);
 
         // @troubleshooting
         //String json_data = null;
@@ -97,8 +98,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 p.getCity(),p.getPostCode(),p.getPPSNumber(),p.getInsurance(), p.getCurrentSessionID()
         );
         patientModel.setMedicalDetails(
-                p.getBloodType(), p.getAllergies(), p.getTubercolosis(), p.getDiabetes(),
-                p.getHeartCondition(), p.getGloucoma(), p.getEpilepsy(), p.getDrugAlcoholAbuse(),
+                p.getBloodType(), p.getAllergies(), p.getTuberculosis(), p.getDiabetes(),
+                p.getHeartCondition(), p.getGlaucoma(), p.getEpilepsy(), p.getDrugAlcoholAbuse(),
                 p.getSmoker(), p.getCancer(), p.getOtherConditions(), p.getMedications(),
                 p.getHeight(), p.getWeight(), p.getRegisteredGP()
         );

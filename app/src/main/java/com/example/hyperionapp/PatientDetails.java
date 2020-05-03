@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class PatientDetails extends ViewModel {
 
@@ -34,10 +33,10 @@ public class PatientDetails extends ViewModel {
     ObservableField<String> registeredGP;
 
     // Medical Conditions Checkboxes
-    ObservableField<Boolean> tubercolosis;
+    ObservableField<Boolean> tuberculosis;
     ObservableField<Boolean> diabetes;
     ObservableField<Boolean> heartCondition;
-    ObservableField<Boolean> gloucoma;
+    ObservableField<Boolean> glaucoma;
     ObservableField<Boolean> epilepsy;
     ObservableField<Boolean> drugAlcoholAbuse;
     ObservableField<Boolean> smoker;
@@ -71,10 +70,10 @@ public class PatientDetails extends ViewModel {
         this.registeredGP = new ObservableField<>();
 
         //Medical Conditions Checkboxes
-        this.tubercolosis = new ObservableField<>();
+        this.tuberculosis = new ObservableField<>();
         this.diabetes = new ObservableField<>();
         this.heartCondition = new ObservableField<>();
-        this.gloucoma = new ObservableField<>();
+        this.glaucoma = new ObservableField<>();
         this.epilepsy = new ObservableField<>();
         this.drugAlcoholAbuse = new ObservableField<>();
         this.smoker = new ObservableField<>();
@@ -86,7 +85,10 @@ public class PatientDetails extends ViewModel {
     }
 
     public Checkin findSessionById(String sessionID){
-        Log.d("DOC SIZE", ""+this.patientSessions.size());
+        /* Class method to find a session by its ID
+         * @param String sessionID The ID to find the session by
+         * @return Checkin or null
+         */
         for (int i = 0; i < this.patientSessions.size(); i++){
             Log.d("INTERNAL ID", this.patientSessions.get(i).getSession_id());
             Log.d("EXTERNAL ID",sessionID);
@@ -99,7 +101,34 @@ public class PatientDetails extends ViewModel {
         return null;
     }
 
+    public String getPreconditions(){
+        /* Class method create a concatenated String of the allergies and other condition text
+         * fields and all preCondition tick boxes for the session checkin
+         * @param String sessionID The ID to find the session by
+         * @return String
+         */
+        String preConditions = "";
+        if(this.allergies.get() != null && !"".equals(this.allergies.get())){ preConditions += this.allergies.get() + ", "; }
+        if(this.tuberculosis.get() != null  && this.tuberculosis.get() == true){ preConditions += "Tuberculosis, "; }
+        if(this.heartCondition.get() != null  && this.heartCondition.get() == true){ preConditions += "Heart Condition, "; }
+        if(this.glaucoma.get() != null  && this.glaucoma.get() == true){ preConditions += "Gloucoma, "; }
+        if(this.drugAlcoholAbuse.get() != null  && this.drugAlcoholAbuse.get() == true){ preConditions += "Drug/Alcohol Abuse, "; }
+        if(this.smoker.get() != null  && this.smoker.get() == true){ preConditions += "Smoker, "; }
+        if(this.cancer.get() != null  && this.cancer.get() == true){ preConditions += "Cancer, "; }
+        if(this.otherConditions.get() != null && !"".equals(this.otherConditions.get())){ preConditions += this.otherConditions.get() + ","; }
+        Log.d("preConditions", preConditions);
+        if(preConditions.length() > 0 && ",".equals(preConditions.charAt(preConditions.length() - 1))) {
+            preConditions = preConditions.substring(0, preConditions.length() - 2);
+        }
+        return preConditions;
+    }
+
+
     public Checkin updateSessionById(Checkin newSession){
+        /* Class method to update a session with new data by its ID
+         * @param String sessionID The ID to find the session by
+         * @return Checkin or null
+         */
         for (int i = 0; i < this.patientSessions.size(); i++){
             if(this.patientSessions.get(i).getSession_id().equals(newSession.getSession_id())) {
                 this.patientSessions.set(i, newSession);
@@ -134,10 +163,10 @@ public class PatientDetails extends ViewModel {
     ){
         this.bloodType = bloodType;
         this.allergies.set(allergies);
-        this.tubercolosis.set(tubercolosis);
+        this.tuberculosis.set(tubercolosis);
         this.diabetes.set(diabetes);
         this.heartCondition.set(heartCondition);
-        this.gloucoma.set(gloucoma);
+        this.glaucoma.set(gloucoma);
         this.epilepsy.set(epilepsy);
         this.drugAlcoholAbuse.set(drugAlcoholAbuse);
         this.smoker.set(smoker);
@@ -147,23 +176,6 @@ public class PatientDetails extends ViewModel {
         this.height.set(height);
         this.weight.set(weight);
         this.registeredGP.set(registeredGP);
-    }
-
-    public String getPreconditions(){
-        String preConditions = "";
-        if(this.allergies.get() != null && !"".equals(this.allergies.get())){ preConditions += this.allergies.get() + ", "; }
-        if(this.tubercolosis.get() != null  && this.tubercolosis.get() == true){ preConditions += "Tuberculosis, "; }
-        if(this.heartCondition.get() != null  && this.heartCondition.get() == true){ preConditions += "Heart Condition, "; }
-        if(this.gloucoma.get() != null  && this.gloucoma.get() == true){ preConditions += "Gloucoma, "; }
-        if(this.drugAlcoholAbuse.get() != null  && this.drugAlcoholAbuse.get() == true){ preConditions += "Drug/Alcohol Abuse, "; }
-        if(this.smoker.get() != null  && this.smoker.get() == true){ preConditions += "Smoker, "; }
-        if(this.cancer.get() != null  && this.cancer.get() == true){ preConditions += "Cancer, "; }
-        if(this.otherConditions.get() != null && !"".equals(this.otherConditions.get())){ preConditions += this.otherConditions.get() + ","; }
-        Log.d("preConditions", preConditions);
-        if(preConditions.length() > 0 && ",".equals(preConditions.charAt(preConditions.length() - 1))) {
-            preConditions = preConditions.substring(0, preConditions.length() - 2);
-        }
-        return preConditions;
     }
 
     public String getName(){
@@ -302,12 +314,12 @@ public class PatientDetails extends ViewModel {
         return patientSessions;
     }
 
-    public Boolean getTubercolosis() {
-        return tubercolosis.get();
+    public Boolean getTuberculosis() {
+        return tuberculosis.get();
     }
 
-    public void setTubercolosis(Boolean tubercolosis) {
-        this.tubercolosis.set(tubercolosis);
+    public void setTuberculosis(Boolean tuberculosis) {
+        this.tuberculosis.set(tuberculosis);
     }
 
     public Boolean getDiabetes() {
@@ -326,12 +338,12 @@ public class PatientDetails extends ViewModel {
         this.heartCondition.set(heartCondition);
     }
 
-    public Boolean getGloucoma() {
-        return gloucoma.get();
+    public Boolean getGlaucoma() {
+        return glaucoma.get();
     }
 
-    public void setGloucoma(Boolean gloucoma) {
-        this.gloucoma.set(gloucoma);
+    public void setGlaucoma(Boolean glaucoma) {
+        this.glaucoma.set(glaucoma);
     }
 
     public Boolean getEpilepsy() {
