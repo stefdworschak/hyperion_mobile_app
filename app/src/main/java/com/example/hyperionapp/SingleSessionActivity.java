@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SingleSessionActivity extends AppCompatActivity {
-    EncryptionClass encryption = new EncryptionClass();
+    EncryptionService encryption = new EncryptionService();
     private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String DATA_FILENAME = user_id + "_hyperion.enc";
@@ -41,7 +41,7 @@ public class SingleSessionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_document);
 
         String encrypted_data = encryption.basicRead(SingleSessionActivity.this, DATA_FILENAME);
-        String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
+        String json_data = encryption.decryptSymmetric(encrypted_data, SYMMETRIC_ALIAS);
         //String json_data = null;
         PatientDetails p;
         if (json_data != null) {

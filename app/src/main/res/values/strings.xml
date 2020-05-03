@@ -59,10 +59,10 @@
     <string name="height">Height(ft)</string>
     <string name="gp">Registered GP</string>
     <string name="insurance_policy_number">Insurance Policy Number</string>
-    <string name="tubercolosis">Tubercolosis</string>
+    <string name="tuberculosis">Tuberculosis</string>
     <string name="diabetes">Diabetes</string>
     <string name="heart_condition">Heart Condition</string>
-    <string name="gloucoma">Gloucoma</string>
+    <string name="glaucoma">Glaucoma</string>
     <string name="epilepsy">Epilepsy</string>
     <string name="drug_alcohol_abuse">Drug/Alcohol abuse</string>
     <string name="smoker">Smoker</string>
@@ -78,7 +78,7 @@
     <string name="create_user_btn">Create User</string>
     <string name="my_sessions">History</string>
     <string name="pain_scale">Pain Scale</string>
-    <string name="syptoms">Syptoms</string>
+    <string name="syptoms">Symptoms</string>
     <string name="condition_duration">How long have you had this condition?</string>
     <string name="successful_checkin">You have Checked-In successfully!</string>
     <string name="end_session">End Session</string>

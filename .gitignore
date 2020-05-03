@@ -17,3 +17,4 @@
 /app/src/release/free/google-services.json
 *.jks
 keystore.*
+gradle.properties

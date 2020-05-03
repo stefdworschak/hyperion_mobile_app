@@ -35,7 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.hyperionapp.EncryptionClass;
+import com.example.hyperionapp.EncryptionService;
 import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.Checkin;
@@ -81,7 +81,7 @@ public class CheckinFragment extends Fragment {
     final private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
     final String DATA_FILENAME = user_id + "_hyperion.enc";
-    final private EncryptionClass encryption = new EncryptionClass();
+    final private EncryptionService encryption = new EncryptionService();
     private final String COLLECTION_NAME = "checkins";
     private static final String TAG = "MainActivity";
     private RegisterActivity reg = new RegisterActivity();
