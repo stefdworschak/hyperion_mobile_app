@@ -36,16 +36,14 @@ public class MDB {
     public void updatePubKey(String user_id, String pub_key){
         this.client.getAuth().loginWithCredential(new AnonymousCredential()).continueWithTask(
                 new Continuation<StitchUser, Task<RemoteUpdateResult>>() {
-
                     @Override
                     public Task<RemoteUpdateResult> then(@NonNull Task<StitchUser> task) throws Exception {
                         if (!task.isSuccessful()) {
-                            Log.e("STITCH", "Login failed!", task.getException());
                             throw task.getException();
                         }
+
                         id = System.currentTimeMillis()/1000;
                         Document filterDoc = new Document().append("owner_id", user_id);
-
                         final Document updateDoc = new Document(
                                 "owner_id",
                                 user_id

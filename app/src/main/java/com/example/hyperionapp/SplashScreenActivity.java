@@ -20,29 +20,22 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splashscreen);
 
-
         // Create a Handler with delay to delay starting the next activity by 1000ms
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+        handler.postDelayed(() -> {
+            // Declare and grab the current user from the FirebaseAuth Instance
+            FirebaseUser user = mAuth.getCurrentUser();
 
-                // Declare and grab the current user from the FirebaseAuth Instance
-                FirebaseUser user = mAuth.getCurrentUser();
-
-                // If a user is logged in
-                if (user != null) {
-                    // Redirect to the MainActivity
-                    Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(mainActivity);
-                } else {
-                    // Else redirect to the LoginActivity
-                    Intent loginActivity = new Intent(getApplicationContext(), LoginActivity.class);
-                    startActivity(loginActivity);
-                }
-
+            // If a user is logged in
+            if (user != null) {
+                // Redirect to the MainActivity
+                Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(mainActivity);
+            } else {
+                // Else redirect to the LoginActivity
+                Intent loginActivity = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(loginActivity);
             }
-
         }, 1000);
     }
 }

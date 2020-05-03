@@ -172,6 +172,7 @@ public class CheckinFragment extends Fragment {
                 // Create semi-random session ID and write it to the log
                 final String sessionID = genRandom(10);
                 Log.d("Session ID", sessionID);
+
                 // Reference: https://firebase.google.com/docs/cloud-messaging/android/topic-messaging#subscribe_the_client_app_to_a_topic
                 // Use FirebaseMessaging to subscribe to a topic with the session ID as its value
                 FirebaseMessaging.getInstance().subscribeToTopic(sessionID)

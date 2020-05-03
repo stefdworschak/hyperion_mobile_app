@@ -38,7 +38,7 @@ public class ListSessionsFragment extends Fragment {
         // Retrieve the sessions from the viewModel
         List<Checkin> sessions = patientModel.getPatientSessions();
         // Declare and instantiate a new array that will be the source of the ListView
-        ArrayList<String> sessionsArray = new ArrayList<String>();
+        ArrayList<String> sessionsArray = new ArrayList<>();
 
         // If there are any sessions
         if(sessions.size() > 0){
@@ -73,24 +73,21 @@ public class ListSessionsFragment extends Fragment {
 
         // Reference: https://stackoverflow.com/a/17851698
         // Set event listener for when user clicks on one of the items
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position,
-                                    long id) {
-                // Get selected item
-                String item = parent.getItemAtPosition(position).toString();
-                // Split string and retrieve session details from label
-                String[] sessionDetails = item.split("\n");
-                String sessionID_lbl = sessionDetails[0];
-                String status_lbl = sessionDetails[2];
-                String sessionID = sessionID_lbl.split(" ")[1];
-                String status = status_lbl.split(" ")[1];
-                // Redirect to SingleSessionActivity and add extra data to display the information
-                Intent intent = new Intent(getActivity(), SingleSessionActivity.class);
-                intent.putExtra("session_id", sessionID);
-                intent.putExtra("session_status", status);
-                startActivity(intent);
-            }
+        listView.setOnItemClickListener((AdapterView<?> parent, View view, int position,
+        long id) -> {
+            // Get selected item
+            String item = parent.getItemAtPosition(position).toString();
+            // Split string and retrieve session details from label
+            String[] sessionDetails = item.split("\n");
+            String sessionID_lbl = sessionDetails[0];
+            String status_lbl = sessionDetails[2];
+            String sessionID = sessionID_lbl.split(" ")[1];
+            String status = status_lbl.split(" ")[1];
+            // Redirect to SingleSessionActivity and add extra data to display the information
+            Intent intent = new Intent(getActivity(), SingleSessionActivity.class);
+            intent.putExtra("session_id", sessionID);
+            intent.putExtra("session_status", status);
+            startActivity(intent);
         });
         // Render view
         return v;

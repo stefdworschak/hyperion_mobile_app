@@ -72,61 +72,85 @@ public class DetailsFragment extends Fragment {
         View v = fragmentDetailsNewBinding.getRoot();
         fragmentDetailsNewBinding.setPatientModel(patientModel);
 
-        TextInputLayout elDob = (TextInputLayout) v.findViewById(R.id.dob_text_input);
+        // Declare and instantiate UI elements
         EditText etDob = (TextInputEditText) v.findViewById(R.id.dob_edit_text);
         etDob.setInputType(InputType.TYPE_NULL);
-        Button btnSave = (Button) v.findViewById(R.id.save_button);
+        Button btnSave =  v.findViewById(R.id.save_button);
         Date dob = patientModel.getDateOfBirth();
+
+        // Check if the dateOfBirth was previously saved and set the TextField if it was
         if(dob != null) {
             etDob.setText(dateFormat.format(dob));
         }
 
-        //Partially adapted from here:
-        //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
+        // Reference: https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
+        // Dispay DatePicker when the user focusses on the TextEdit
+        // This happens when the user uses the softkeyboard to go to the next field instead of
+        // clicking on the field
         etDob.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+                // Check if the field is focused
                 if(hasFocus) {
+                    // Declare and instantiate a Calendar instance and get day, month and year
+                    // from it
                     final Calendar cldr = Calendar.getInstance();
                     int day = cldr.get(Calendar.DAY_OF_MONTH);
                     int month = cldr.get(Calendar.MONTH);
                     int year = cldr.get(Calendar.YEAR);
-                    // date picker dialog
+                    // Instantiate the DatePicker Dialog and define what happens when a date
+                    // is picked
                     picker = new DatePickerDialog(getActivity(),
                             (DatePicker view, int yr, int monthOfYear, int dayOfMonth) -> {
+                                // Once a date is selected and confirmed
+                                // Set the date on the EditText field
                                 etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + yr);
+                                // Set the selected date on the Calendar instance
                                 cldr.set(yr, monthOfYear, dayOfMonth);
                                 cldr.getTime();
+                                // Save the date in the viewModel
                                 Date dob = (Date) cldr.getTime();
                                 patientModel.setDateOfBirth(dob);
                             }, year, month, day);
+                    // Show the DatePicker dialog
                     picker.show();
                 }
             }
         });
 
 
-        //Partially adapted from here:
-        //https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
+        // Reference: https://www.tutlane.com/tutorial/android/android-datepicker-with-examples
+        // Dispay DatePicker when the user clicks on the TextEdit
         etDob.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Declare and instantiate a Calendar instance and get day, month and year
+                // from it
                 final Calendar cldr = Calendar.getInstance();
                 int day = cldr.get(Calendar.DAY_OF_MONTH);
                 int month = cldr.get(Calendar.MONTH);
                 int year = cldr.get(Calendar.YEAR);
+                // Instantiate the DatePicker Dialog and define what happens when a date
+                // is picked
                 picker = new DatePickerDialog(getActivity(),
                         (DatePicker view, int yr, int monthOfYear, int dayOfMonth) -> {
+                            // Once a date is selected and confirmed
+                            // Set the date on the EditText field
                             etDob.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + yr);
+                            // Set the selected date on the Calendar instance
                             cldr.set(yr, monthOfYear, dayOfMonth);
                             cldr.getTime();
+                            // Save the date in the viewModel
                             Date dob = (Date) cldr.getTime();
                             patientModel.setDateOfBirth(dob);
                         }, year, month, day);
+                // Show the DatePicker dialog
                 picker.show();
             }
         });
 
+        // Save the data from the viewModel in the encrypted local file when the users
+        // clicks the button
         btnSave.setOnClickListener((View view) -> encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME));
         // Render view
         return v;

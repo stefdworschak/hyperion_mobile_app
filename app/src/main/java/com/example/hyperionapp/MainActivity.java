@@ -5,9 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import com.google.android.material.tabs.TabLayout;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,15 +19,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
-
-/*
-    For JSON to Object coversion:
-    https://mkyong.com/java/how-do-convert-java-object-to-from-json-format-gson-api/
-
- */
-
 public class MainActivity extends AppCompatActivity implements LifecycleObserver {
     /* Class to handle main UI logic, loading the user data and setting up the viewModel */
+
     // Declare and instantiate class constants
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -147,8 +139,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                         .setTitle("Clear Data")
                         .setMessage("Do you really want to clear all data?")
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
+                        .setPositiveButton(android.R.string.yes, (DialogInterface dialog, int whichButton) -> {
                                 // When the dialog is confirmed
                                 // Create a new empty PatientDetails instance
                                 // and save it in the local storage file
@@ -158,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                                 // Close the menu and restart the activity
                                 finish();
                                 startActivity(getIntent());
-                            }})
+                            })
                         .setNegativeButton(android.R.string.no, null).show();
                 return true;
             case R.id.change_code:

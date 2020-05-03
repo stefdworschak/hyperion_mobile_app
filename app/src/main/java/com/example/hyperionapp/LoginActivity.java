@@ -5,27 +5,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.annotations.NonNull;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-/*
- * References:
- * https://firebase.google.com/docs/auth/android/manage-users
- * https://firebase.google.com/docs/auth/android/password-auth
- */
 public class LoginActivity extends AppCompatActivity {
     /* Class to handle all user authentication logic */
     // Declare class attributes
@@ -33,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText etPassword;
     // Declare and instantiate class constants
     final String TAG = "CREATE USER ACCOUNT";
-    // Declare and instantiate Firebase Instance
+    // Declare and instantiate FirebaseAuth Instance
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     // Declare and instantiate RegisterActivity to reuse showTopToast method
     RegisterActivity reg = new RegisterActivity();
@@ -42,35 +34,29 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        // Declare and grab the current user from the Firebase Instance
+        // Declare and grab the current user from the FirebaseAuth Instance
         FirebaseUser user = mAuth.getCurrentUser();
         // Check if user is authenticated already and redirect accordingly
         isAuthenticated(LoginActivity.this, user, false);
         // Render LoginActivity
         setContentView(R.layout.activity_login);
-        // Declare and instatiate Button and TextView for the login page
+        // Declare and instantiate Button and TextView for the login page
         Button btnSave = findViewById(R.id.btn_login);
         TextView tvCreateUser = findViewById(R.id.link_signup);
 
         // Set OnClickListener for the TextView to bring the user to the RegisterActivity
-        tvCreateUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Redirect to the RegiserActivity
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
+        tvCreateUser.setOnClickListener((View v) -> {
+            // Redirect to the RegisterActivity
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
         });
         // Set OnClickListener for the Button to start the login process
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Instantiate Email and Password text fields
-                etEmail = findViewById(R.id.input_login_email);
-                etPassword = findViewById(R.id.input_login_password);
-                // Call the user authentication method
-                authenticateUser(etEmail.getText().toString(), etPassword.getText().toString());
-            }
+        btnSave.setOnClickListener((View v) -> {
+            // Instantiate Email and Password text fields
+            etEmail = findViewById(R.id.input_login_email);
+            etPassword = findViewById(R.id.input_login_password);
+            // Call the user authentication method
+            authenticateUser(etEmail.getText().toString(), etPassword.getText().toString());
         });
 
     }
@@ -90,23 +76,21 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Reference: https://firebase.google.com/docs/auth/android/password-auth#sign_in_a_user_with_an_email_address_and_password
         // Sign into an existing FirebaseAuth user account using email address and password
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        // If the authentication was successful
-                        if (task.isSuccessful()) {
-                            // Grab the logged-in user from the existing FirebaseAuth Instance
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            // Validate user is authenticated and redirect accordingly
-                            isAuthenticated(LoginActivity.this, user, true);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "Login NOT successful!", task.getException());
-                            reg.showTopToast(LoginActivity.this,
-                                    "Authentication failed.");
-                        }
+                .addOnCompleteListener(this, (@NonNull Task<AuthResult> task) -> {
+                    // If the authentication was successful
+                    if (task.isSuccessful()) {
+                        // Grab the logged-in user from the existing FirebaseAuth Instance
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        // Validate user is authenticated and redirect accordingly
+                        isAuthenticated(LoginActivity.this, user, true);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "Login NOT successful!", task.getException());
+                        reg.showTopToast(LoginActivity.this,
+                                "Authentication failed.");
                     }
                 });
     }
@@ -116,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
          * @return void
          */
 
+        // Reference: https://firebase.google.com/docs/auth/android/password-auth#next_steps
         // End the current FirebaseAuth user session
         mAuth.signOut();
         // Redirect to the LoginActivity
@@ -123,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(loginActivity);
     }
 
+    // Reference: https://www.youtube.com/watch?v=cnD_7qFeZcY
     private boolean validateForm() {
         /* Validates that all form fields are correctly filled in
          * @return Boolean
@@ -159,8 +145,10 @@ public class LoginActivity extends AppCompatActivity {
          * @return boolean
          */
 
+        // Reference: https://firebase.google.com/docs/auth/android/manage-users#get_the_currently_signed-in_user
         // If the user is authenticated
         if(user != null){
+            // Reference: https://firebase.google.com/docs/auth/android/manage-users#get_a_users_profile
             // If the user's email is verified
             if(user.isEmailVerified()){
                 if(redirect) {

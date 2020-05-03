@@ -74,12 +74,9 @@ public class PatientDetailsFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
-        // Define clickListener for the Save button
-        btnSave.setOnClickListener((View view) -> {
-            //Save the viewModel to the encrypted local file and write success message to the log
-            String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
-            Log.d("DATA SAVED", saveMsg);
-        });
+        // Save the data from the viewModel in the encrypted local file when the users
+        // clicks the button
+        btnSave.setOnClickListener((View view) -> encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME));
         // Render view
         return v;
 

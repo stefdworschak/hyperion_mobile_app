@@ -45,14 +45,18 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Declare and grab the current user from the Firebase Instance
         FirebaseUser user = mAuth.getCurrentUser();
+        // Reference: https://firebase.google.com/docs/auth/android/manage-users#get_the_currently_signed-in_user
         // If a user is logged in
         if (user != null) {
+            // Reference: https://firebase.google.com/docs/auth/android/manage-users#get_a_users_profile
+            // And if the email address is verified
             if(user.isEmailVerified()) {
             // Redirect to MainActivity
             Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(mainActivity);
             // Otherwise log the user out
             } else {
+                // Reference: https://firebase.google.com/docs/auth/android/password-auth#next_steps
                 mAuth.signOut();
             }
         }
@@ -60,25 +64,22 @@ public class RegisterActivity extends AppCompatActivity {
         // Render RegisterActivity
         setContentView(R.layout.activity_create_user);
         // Declare and instatiate button to create new account
-        Button btnCreate = (Button) findViewById(R.id.btn_create_user);
+        Button btnCreate = findViewById(R.id.btn_create_user);
         //When button is clicked
-        btnCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Instantiate EditText elements
-                etEmail = (EditText) findViewById(R.id.create_user_email);
-                etPassword = (EditText) findViewById(R.id.create_password_input);
-                etConfirmPassword = (EditText) findViewById(R.id.confirm_password_input);
+        btnCreate.setOnClickListener((View v) -> {
+            // Instantiate EditText elements
+            etEmail = findViewById(R.id.create_user_email);
+            etPassword = findViewById(R.id.create_password_input);
+            etConfirmPassword = findViewById(R.id.confirm_password_input);
 
-                //Check that the two passwords entered match
-                if(etPassword.getText().toString().equals(etConfirmPassword.getText().toString())){
-                    // Call class method to create the account
-                    createAccount(etEmail.getText().toString(), etPassword.getText().toString());
-                } else {
-                    // Show message if the passwords not match
-                    showTopToast(RegisterActivity.this,
-                            "Passwords don't match");
-                }
+            //Check that the two passwords entered match
+            if(etPassword.getText().toString().equals(etConfirmPassword.getText().toString())){
+                // Call class method to create the account
+                createAccount(etEmail.getText().toString(), etPassword.getText().toString());
+            } else {
+                // Show message if the passwords not match
+                showTopToast(RegisterActivity.this,
+                        "Passwords don't match");
             }
         });
     }
@@ -98,49 +99,47 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        // Reference: https://firebase.google.com/docs/auth/android/password-auth#create_a_password-based_account
         // Create a new FirebaseAuth user account from the existing Firebase Instance
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        // If the account was created successfully
-                        if (task.isSuccessful()) {
-                            // Grab the new user from the existing FirebaseAuth Instance
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Log.d(TAG, "Successfully created user!");
-                            // Verify again that the user is signed in
-                            // This is to avoid issues with retrieving the user account
-                            if(user != null) {
-                                // Call class method to send a verification email to the new user
-                                sendEmailVerification(user);
-                                // Declare and Instantiate the Encryption class which handles
-                                // all functionality for encrypting/decrypting data and
-                                // saving/reading the data from the local data file
-                                EncryptionClass encryption = new EncryptionClass();
-                                // Create a new private/public key pair for the user
-                                // and store them in the Android Keystore
-                                String public_key = encryption.createAndStoreKeys(
-                                        getApplicationContext(),
-                                        ASYMMETRIC_ALIAS_ROOT + user.getUid());
-                                // Redirect the user to the CreateCodeActivity with which the
-                                // User will create their 2-factor authentication key
-                                Intent createCodeIntent = new Intent(
-                                        RegisterActivity.this, CreateCodeActivity.class);
-                                startActivity(createCodeIntent);
+                .addOnCompleteListener(this, (@NonNull Task<AuthResult> task) -> {
+                    // If the account was created successfully
+                    if (task.isSuccessful()) {
+                        // Grab the new user from the existing FirebaseAuth Instance
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        Log.d(TAG, "Successfully created user!");
+                        // Verify again that the user is signed in
+                        // This is to avoid issues with retrieving the user account
+                        if(user != null) {
+                            // Call class method to send a verification email to the new user
+                            sendEmailVerification(user);
+                            // Declare and Instantiate the Encryption class which handles
+                            // all functionality for encrypting/decrypting data and
+                            // saving/reading the data from the local data file
+                            EncryptionClass encryption = new EncryptionClass();
+                            // Create a new private/public key pair for the user
+                            // and store them in the Android Keystore
+                            String public_key = encryption.createAndStoreKeys(
+                                    getApplicationContext(),
+                                    ASYMMETRIC_ALIAS_ROOT + user.getUid());
+                            // Redirect the user to the CreateCodeActivity with which the
+                            // User will create their 2-factor authentication key
+                            Intent createCodeIntent = new Intent(
+                                    RegisterActivity.this, CreateCodeActivity.class);
+                            startActivity(createCodeIntent);
 
-                            // If the user is not logged in
-                            } else {
-                                // Redirect to the LoginActivity
-                                Intent loginIntent = new Intent(
-                                        RegisterActivity.this, LoginActivity.class);
-                                startActivity(loginIntent);
-                            }
+                        // If the user is not logged in
                         } else {
-                            // If user creation fails, display a message to the user.
-                            Log.e(TAG, "User could not be created", task.getException());
-                            showTopToast(RegisterActivity.this,
-                                        task.getException().getMessage());
+                            // Redirect to the LoginActivity
+                            Intent loginIntent = new Intent(
+                                    RegisterActivity.this, LoginActivity.class);
+                            startActivity(loginIntent);
                         }
+                    } else {
+                        // If user creation fails, display a message to the user.
+                        Log.e(TAG, "User could not be created", task.getException());
+                        showTopToast(RegisterActivity.this,
+                                    task.getException().getMessage());
                     }
                 });
     }
@@ -150,28 +149,28 @@ public class RegisterActivity extends AppCompatActivity {
          * @return void
          */
 
+        // Reference: https://firebase.google.com/docs/auth/android/manage-users#send_a_user_a_verification_email
         // Send a verification email to a new FirebaseAuth user account using its
         // sendEmailVerification method
         user.sendEmailVerification()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // If the email was sent successfully
-                        if (task.isSuccessful()) {
-                            // Show message to user
-                            showTopToast(RegisterActivity.this,
-                                    "Verification email sent to " + user.getEmail());
-                        } else {
-                            // Else show an err notification
-                            Log.e(TAG, "sendEmailVerification", task.getException());
-                            // Show error message
-                            showTopToast(RegisterActivity.this,
-                                    "Failed to send verification email.");
-                        }
+                .addOnCompleteListener(this, (@NonNull Task<Void> task) -> {
+                    // If the email was sent successfully
+                    if (task.isSuccessful()) {
+                        // Show message to user
+                        showTopToast(RegisterActivity.this,
+                                "Verification email sent to " + user.getEmail());
+                    } else {
+                        // Else show an err notification
+                        Log.e(TAG, "sendEmailVerification", task.getException());
+                        // Show error message
+                        showTopToast(RegisterActivity.this,
+                                "Failed to send verification email.");
                     }
+
                 });
     }
 
+    // Reference: https://www.youtube.com/watch?v=cnD_7qFeZcY
     private Boolean validateForm() {
         /* Validates that all form fields are correctly filled in
          * @return Boolean

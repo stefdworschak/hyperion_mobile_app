@@ -4,46 +4,44 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.annotations.NonNull;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.crypto.SecretKey;
-
 public class CodeActivity extends AppCompatActivity {
-    private String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    final String CODE = "1234";
-    Gson gson = new Gson();
-    EditText etCode;
-    private final int NOTIFICATION_ID = 606;
-    private final String CHANNEL_ID = "fcm_notification";
+    /* Class to handle what happens when the 2-factor authentication is entered */
+
+    // Declare and instantiate class constants
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private final String user_id = user.getUid();
     private final String CODE_ALIAS = "user_code_" + user_id;
     private final String CODE_FILENAME = user_id + "code.enc";
     private final String COLLECTION_NAME = "checkins";
-    EncryptionClass encryption = new EncryptionClass();
+    private final EncryptionClass encryption = new EncryptionClass();
+    private final String DATA_FILENAME = user_id + "_hyperion.enc";
+    private final RegisterActivity reg = new RegisterActivity();
+    private final LoginActivity login = new LoginActivity();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final MDB mongo = new MDB();
+
+    // Declare and instantiate class attributes
     String session_id = "";
-    final String DATA_FILENAME = user_id + "_hyperion.enc";
-    private static String session_shared = "";
+    //static String session_shared = "";
     private static String session_documents = "";
     private static String notification_id;
-    private static FirebaseFirestore db;
+
     private static String TAG = "SHARING SETTINGS MSG";
     private String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
@@ -52,107 +50,98 @@ public class CodeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        checkLoggedin(FirebaseAuth.getInstance().getCurrentUser());
-
+        // Check if user is authenticated
+        login.isAuthenticated(CodeActivity.this, user, false);
+        // Render view
         setContentView(R.layout.activity_code);
-        Button btnConfirm = (Button) findViewById(R.id.confirmCodeBtn);
-        etCode = (EditText) findViewById(R.id.etConfirmCode_text);
+        //Declare and instantiate UI elements
+        Button btnConfirm = findViewById(R.id.confirmCodeBtn);
+        EditText etCode = findViewById(R.id.etConfirmCode_text);
+
+        // Grab information from intent
         session_id = getIntent().getStringExtra("session_id");
-        session_shared = getIntent().getStringExtra("session_shared");
         session_documents = getIntent().getStringExtra("session_documents");
 
+        // Declare and instantiate Notification manager
         NotificationManager notificationManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
+        // Get current notificationID from intent
         notification_id = getIntent().getStringExtra("notification_id");
+        // If the notificationID is not null
         if (notification_id != null){
-            Log.d("NOTIFICATION ID", notification_id);
+            // Close the notification with the specified ID
             notificationManager.cancel(Integer.parseInt(notification_id));
         }
 
-        Log.d(TAG, "SESSION_ID");
-        if(session_id != null){
-            Log.d(TAG, session_id);
-        }
+        // When the user clicks the confirm button
+        btnConfirm.setOnClickListener((View v) -> {
+            // Read and decrypt the user code from the encrypted local file
+            String encrypted_data = encryption.basicRead(CodeActivity.this, CODE_FILENAME);
+            String userCode = encryption.decryptSymmetrically(encrypted_data, CODE_ALIAS);
 
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                    String encrypted_data = encryption.basicRead(CodeActivity.this, CODE_FILENAME);
-                    String userCode = encryption.decryptSymmetrically(encrypted_data, CODE_ALIAS);
-                    Log.d("USER CODE", userCode);
-                    if(userCode.equalsIgnoreCase(etCode.getText().toString())) {
-                        shareUserData(session_id);
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Wrong Code Entered. Please try again", Toast.LENGTH_SHORT);
-                    }
+            // If the entered code is the same as the saved code
+            if(userCode.equalsIgnoreCase(etCode.getText().toString())) {
+                // Call the method to share the user data
+                shareUserData(session_id);
+            } else {
+                // Otherwise show an error message
+                reg.showTopToast(getApplicationContext(),
+                        "Wrong Code Entered. Please try again");
             }
         });
     }
 
 
-    // Updating data from the official api reference
-    // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+
     public void shareUserData(String session_id){
-        Log.d("SHARING", "SHARE DATA!!!!");
-        db = FirebaseFirestore.getInstance();
+        /* Method to process sharing the encrypted user data
+         * @param String session_id The current session ID
+         * @return void
+         */
+
+        Log.d("DATA SHARING", "Process started");
+        // Updating data from the official api reference
+        // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+
+        // Create a new HashMap (= JSON object in FirebaseFirestore) which will be used to
+        // update the the existing data in FirebaseFirestore
         Map<String, Object> sharing = new HashMap<>();
+        // Change the session_shared to 2 (=shared)
+        // This should be the only place where this is possible unless the user has
+        // "Share data now" enabled when creating the session
         sharing.put("session_shared", "2");
+        // Create the data key field, setting it equal to the id of their FirebaseUser
         sharing.put("data_key", user_id);
 
-
-        // Logic to encrypt symm key and data and send to firebase
-        String sKey = "lingyejunAesTest";
+        // Read the data from the encrypted local file and decrypt it
         String encrypted_data = encryption.basicRead(CodeActivity.this, DATA_FILENAME);
         String json_data = encryption.decryptSymmetrically(encrypted_data, SYMMETRIC_ALIAS);
+        // Declare and instantiate a new variable that will store the re-encrypted data
         String enc = "";
         try {
-            String json_write = "";
-            /*for (int i = 0; i < json_data.length(); i++){
-                if(json_data.charAt(i) == '\"'){
-                    json_write += "'";
-                } else if(json_data.charAt(i) == '+' || json_data.charAt(i) == '\\' || json_data.charAt(i) == '-'){
-
-                }
-                else {
-                    json_write += json_data.charAt(i);
-                }
-            }
-            Log.d("OUTPUT JSON", json_write);*/
-            json_write = json_data;
-            enc = encryption.encryptUsingPassword(session_id, json_write);
-            Log.d("ENCRYPTED DATA", enc);
+            // Re-encrypt the data using the the session_id as key
+            enc = encryption.encryptUsingPassword(session_id, json_data);
         } catch(Exception e){
+            // Print StackTrace if error occurs
             e.printStackTrace();
         }
-        MDB mongo = new MDB();
+        // Store the encrypted data under the FirebaseUser id in MongoDB
         mongo.updatePubKey(""+user_id, enc);
+        // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        // Update the FirebaseFirestore document with the updated information
         DocumentReference document = db.collection(COLLECTION_NAME).document(session_id);
         document.update(sharing)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "Sharing Settings successfully updated!");
-                Intent go = new Intent(CodeActivity.this, MainActivity.class);
-                // you pass the position you want the viewpager to show in the extra,
-                // please don't forget to define and initialize the position variable
-                // properly
-                go.putExtra("viewpager_position", 2);
-                go.putExtra("session_documents", session_documents);
-                startActivity(go);
-            }
+                .addOnSuccessListener((Void aVoid) -> {
+                    // If FirebaseFirestore document was successfully udpdated
+                    // Redirect to the MainActivity
+                    Intent go = new Intent(CodeActivity.this, MainActivity.class);
+                    //go.putExtra("viewpager_position", 2);
+                    startActivity(go);
         })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error updating Sharing Settings", e);
-                    }
-                });
+        .addOnFailureListener((@NonNull Exception e) -> {
+            // If an error occurred write and error to the log
+            Log.w(TAG, "Error updating Sharing Settings", e);
+        });
 
 
-    }
-    private void checkLoggedin(FirebaseUser user){
-        if(user == null){
-            Intent redirect = new Intent(CodeActivity.this, LoginActivity.class);
-            startActivity(redirect);
-        }
     }
 }
