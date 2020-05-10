@@ -134,6 +134,9 @@ public class CodeActivity extends AppCompatActivity {
         p.setLatestSnapshot(c);
         p.updateSessionById(check);
 
+        shareEncrypted(json_data, sharing);
+    }
+    public void shareEncrypted(String json_data, Map<String, Object> sharing){
         // Declare and instantiate a new variable that will store the re-encrypted data
         String enc = "";
         try {
@@ -156,12 +159,10 @@ public class CodeActivity extends AppCompatActivity {
                     Intent go = new Intent(CodeActivity.this, MainActivity.class);
                     //go.putExtra("viewpager_position", 2);
                     startActivity(go);
-        })
-        .addOnFailureListener((@NonNull Exception e) -> {
-            // If an error occurred write and error to the log
-            Log.w(TAG, "Error updating Sharing Settings", e);
-        });
-
-
+                })
+                .addOnFailureListener((@NonNull Exception e) -> {
+                    // If an error occurred write and error to the log
+                    Log.w(TAG, "Error updating Sharing Settings", e);
+                });
     }
 }
