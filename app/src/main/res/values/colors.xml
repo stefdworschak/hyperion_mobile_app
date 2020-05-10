@@ -15,4 +15,9 @@
     <color name="alertYellowBorder">#ffeeba</color>
     <color name="alertYellowTxt">#856404</color>
     <color name="btnBlue">#007bff</color>
+    <color name="yellowDarkBorder">#996600</color>
+    <color name="lightRed">#ffe6e6</color>
+    <color name="light_green">#cfffd3</color>
+    <color name="dark_blue">#0400ff</color>
+    <color name="light_blue">#c9e2ff</color>
 </resources>

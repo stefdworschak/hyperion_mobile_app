@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +44,6 @@ public class CodeActivity extends AppCompatActivity {
     private static String notification_id;
 
     private static String TAG = "SHARING SETTINGS MSG";
-    private String ASYMMETRIC_ALIAS = "hyperion_asymmetric_" + user_id;
     final String SYMMETRIC_ALIAS = "hyperion_symmetric_" + user_id;
 
     @Override
@@ -115,6 +115,25 @@ public class CodeActivity extends AppCompatActivity {
         // Read the data from the encrypted local file and decrypt it
         String encrypted_data = encryption.basicRead(CodeActivity.this, DATA_FILENAME);
         String json_data = encryption.decryptSymmetric(encrypted_data, SYMMETRIC_ALIAS);
+
+        // Load patient data from json data using Gson.fromJSON
+        PatientDetails p;
+        Gson gson = new Gson();
+        // Check if the json_data is null to avoid errors
+        if(json_data != null) {
+            p = gson.fromJson(json_data, PatientDetails.class);
+        } else {
+            p = new PatientDetails();
+        }
+
+        // Update the session_shared on the latest Snapshot and the session in patientSessions
+        Checkin check = p.findSessionById(session_id);
+        Checkin c = p.getLatestSnapshot();
+        c.setSession_shared(2);
+        check.setSession_shared(2);
+        p.setLatestSnapshot(c);
+        p.updateSessionById(check);
+
         // Declare and instantiate a new variable that will store the re-encrypted data
         String enc = "";
         try {
@@ -124,6 +143,7 @@ public class CodeActivity extends AppCompatActivity {
             // Print StackTrace if error occurs
             e.printStackTrace();
         }
+
         // Store the encrypted data under the FirebaseUser id in MongoDB
         mongo.updateData(""+user_id, enc);
         // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#update-data

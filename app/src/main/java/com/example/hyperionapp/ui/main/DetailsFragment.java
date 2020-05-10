@@ -29,13 +29,6 @@ import java.util.Date;
 import java.util.Locale;
 
 
-/*
-    References:
-    DATA BINDING: https://www.youtube.com/watch?v=pRaFlVCB87k&list=PLJJzW__bab3Q8jYR7dJnNUeoGpHN2Ei1n&index=3
-    DATA BINDING with FRAGMENT: https://stackoverflow.com/questions/34706399/how-to-use-data-binding-with-fragment
-
- */
-
 public class DetailsFragment extends Fragment {
     /* Fragment UI logic for adding the patient's personal details */
 

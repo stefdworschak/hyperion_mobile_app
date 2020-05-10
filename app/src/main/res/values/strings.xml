@@ -78,6 +78,7 @@
     <string name="create_user_btn">Create User</string>
     <string name="my_sessions">History</string>
     <string name="pain_scale">Pain Scale</string>
+    <string name="healthcare_facility">Healthcare Facility</string>
     <string name="syptoms">Symptoms</string>
     <string name="condition_duration">How long have you had this condition?</string>
     <string name="successful_checkin">You have Checked-In successfully!</string>
@@ -93,6 +94,9 @@
     <string name="session_id">Session ID</string>
     <string name="session_date_time">Session Date/Time</string>
     <string name="symptoms_noticed">Symptoms Noticed</string>
+    <string name="error_email_not_verified">You have not verified your email address yet.</string>
+    <string name="error_login_failed">Login failed.</string>
+    <string name="error_fill_in_all_fields">Please make sure that you have filled in all of the required fields.</string>
 
     <string-array name="bloodtype_array">
         <item>A+</item>
@@ -121,5 +125,56 @@
         <item>12 - 24 hours</item>
         <item>Multiple days</item>
         <item>Multiple weeks/months</item>
+    </string-array>
+    <string-array name="hospital_array">
+        <item>Select</item>
+        <item>Bantry General Hospital</item>
+        <item>Beaumont Hospital</item>
+        <item>Cappagh National Orthopaedic Hospital</item>
+        <item>Cavan Monaghan Hospital</item>
+        <item>Childrens University Hospital, Temple Street</item>
+        <item>Connolly Hospital Blanchardstown</item>
+        <item>Coombe Womens Hospital</item>
+        <item>Cork University Hospital</item>
+        <item>Cork University Maternity Hospital</item>
+        <item>Croom Hospital: UL Hospitals</item>
+        <item>Ennis Hospital: UL Hospitals</item>
+        <item>Galway University Hospitals</item>
+        <item>Kerry General Hospital</item>
+        <item>Letterkenny University Hospital</item>
+        <item>Lourdes Orthopaedic Hospital, Kilcreene</item>
+        <item>Louth County Hospital, Dundalk</item>
+        <item>Mallow General Hospital</item>
+        <item>Mater Misericordiae University Hospital</item>
+        <item>Mayo General Hospital</item>
+        <item>Mercy University Hospital, Cork</item>
+        <item>Midland Regional Hospital Mullingar</item>
+        <item>Midland Regional Hospital Portlaoise</item>
+        <item>Midland Regional Hospital Tullamore</item>
+        <item>Naas General Hospital</item>
+        <item>National Maternity Hospital, Holles Street</item>
+        <item>Nenagh Hospital: UL Hospitals</item>
+        <item>Our Lady Of Lourdes Hospital, Drogheda</item>
+        <item>Our Ladys Hospital, Navan</item>
+        <item>Our Ladys Childrens Hospital Crumlin</item>
+        <item>Portiuncula Hospital, Ballinasloe</item>
+        <item>Roscommon County Hospital</item>
+        <item>Rotunda Hospital</item>
+        <item>Royal Victoria Eye and Ear Hospital, Dublin</item>
+        <item>Sligo General Hospital</item>
+        <item>South Infirmary-Victoria Hospital, Cork</item>
+        <item>South Tipperary General Hospital</item>
+        <item>St Colmcilles Hospital, Loughlinstown</item>
+        <item>St Jamess Hospital</item>
+        <item>St Johns Hospital Limerick</item>
+        <item>St Lukes General Hospital Carlow / Kilkenny</item>
+        <item>St Lukes Hospital, Rathgar (Cancer Services)</item>
+        <item>St Michaels, Dun Laoghaire</item>
+        <item>St Vincents University Hospital, Elm Park</item>
+        <item>Tallaght University Hospital</item>
+        <item>University Hospital Limerick</item>
+        <item>University Maternity Hospital: UL Hospitals</item>
+        <item>University Hospital Waterford</item>
+        <item>Wexford General Hospital</item>
     </string-array>
 </resources>

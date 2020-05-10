@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         if (!validateForm()) {
             // Shows message at the top of the screen if there are any errors
             reg.showTopToast(LoginActivity.this,
-                    "Please make sure that you have filled in all of the required fields.");
+                    getString(R.string.error_fill_in_all_fields));
             return;
         }
 
@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "Login NOT successful!", task.getException());
                         reg.showTopToast(LoginActivity.this,
-                                "Authentication failed.");
+                                getString(R.string.error_login_failed));
                     }
                 });
     }
@@ -163,7 +163,7 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(loginActivity);
                 // Show error message
                 reg.showTopToast(LoginActivity.this,
-                        "You have not verified your email address yet.");
+                        getString(R.string.error_email_not_verified));
             }
         } else {
             if(redirect) {
@@ -172,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(loginActivity);
                 // Show error message
                 reg.showTopToast(LoginActivity.this,
-                        "Login failed.");
+                        getString(R.string.error_login_failed));
             }
         }
     }

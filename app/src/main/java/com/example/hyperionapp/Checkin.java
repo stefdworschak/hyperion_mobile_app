@@ -12,10 +12,11 @@ public class Checkin {
     private Date session_checkin;
     private HashMap<String, String> session_details;
     private int session_shared;
+    private String hospital;
     private List<SessionDocument> session_documents;
 
 
-    public Checkin(String session_id, String symptoms, String symptoms_duration, String pain_scale, String pre_conditions, int session_shared,
+    public Checkin(String session_id, String symptoms, String symptoms_duration, String pain_scale, String pre_conditions, int session_shared, String hospital,
                     List<SessionDocument> session_documents){
         this.session_id = session_id;
         this.session_checkin = new Date();
@@ -26,6 +27,7 @@ public class Checkin {
         temp.put("pre_conditions", pre_conditions);
         this.session_details = temp;
         this.session_shared = session_shared;
+        this.hospital = hospital;
         this.session_documents = session_documents;
     }
 
@@ -68,5 +70,13 @@ public class Checkin {
 
     public List<SessionDocument> getSession_documents() {
         return session_documents;
+    }
+
+    public String getHospital() {
+        return hospital;
+    }
+
+    public void setHospital(String hospital) {
+        this.hospital = hospital;
     }
 }

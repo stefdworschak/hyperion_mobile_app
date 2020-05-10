@@ -48,7 +48,6 @@ public class CreateCodeActivity extends AppCompatActivity {
                 if(user.isEmailVerified()){
                     // Redirect to MainActivity
                     go = new Intent(CreateCodeActivity.this, MainActivity.class);
-                    //go.putExtra("viewpager_position", 2);
                 } else {
                     // If it is not verified and the user is not empty
                     if(user != null){

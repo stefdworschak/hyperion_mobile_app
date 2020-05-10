@@ -18,14 +18,24 @@ import com.example.hyperionapp.Checkin;
 import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.SingleSessionActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
 public class ListSessionsFragment extends Fragment {
     // Declare class variables;
     private PatientDetails patientModel;
+
+    // Declare and instantiate class constants
+    final private List<String> valiateDocuments = new ArrayList<>();
+    final private Gson gson = new Gson();
+    final private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    final private String user_id = user.getUid();
 
     @Nullable
     @Override
@@ -39,7 +49,6 @@ public class ListSessionsFragment extends Fragment {
         List<Checkin> sessions = patientModel.getPatientSessions();
         // Declare and instantiate a new array that will be the source of the ListView
         ArrayList<String> sessionsArray = new ArrayList<>();
-
         // If there are any sessions
         if(sessions.size() > 0){
             // Loop through the sessions (and populate the sessionsArray
@@ -50,11 +59,15 @@ public class ListSessionsFragment extends Fragment {
                 // Declare a new String status and dynamically assign it a status
                 String str_status;
                 if(status == 0) {
-                    str_status = "Started";
+                    if(s.getSession_checkin().compareTo(new Date()) == 1){
+                        str_status = "Scheduled";
+                    } else {
+                        str_status = "Started";
+                    }
                 } else if(status == 1){
-                    str_status = "Waiting for Triage";
+                    str_status = "Data Access requested";
                 } else if(status == 2){
-                    str_status = "In Session";
+                    str_status = "Data shared";
                 } else {
                     str_status = "Complete";
                 }
@@ -65,7 +78,7 @@ public class ListSessionsFragment extends Fragment {
         }
         // Reference: https://www.tutorialspoint.com/how-to-make-a-listview-in-android
         // Declare and instantiate ArrayAdapter in view
-        ArrayAdapter adapter = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter adapter = new ArrayAdapter<>(getActivity(),
                 R.layout.fragment_listview, sessionsArray);
         // Set the created adapter on ListView
         ListView listView = v.findViewById(R.id.session_list);
@@ -92,4 +105,6 @@ public class ListSessionsFragment extends Fragment {
         // Render view
         return v;
     }
+
+
 }

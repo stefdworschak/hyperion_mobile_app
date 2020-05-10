@@ -39,8 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Declare and grab the current user from the Firebase Instance
         FirebaseUser user = mAuth.getCurrentUser();
@@ -49,11 +48,11 @@ public class RegisterActivity extends AppCompatActivity {
         if (user != null) {
             // Reference: https://firebase.google.com/docs/auth/android/manage-users#get_a_users_profile
             // And if the email address is verified
-            if(user.isEmailVerified()) {
-            // Redirect to MainActivity
-            Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(mainActivity);
-            // Otherwise log the user out
+            if (user.isEmailVerified()) {
+                // Redirect to MainActivity
+                Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(mainActivity);
+                // Otherwise log the user out
             } else {
                 // Reference: https://firebase.google.com/docs/auth/android/password-auth#next_steps
                 mAuth.signOut();
@@ -65,20 +64,23 @@ public class RegisterActivity extends AppCompatActivity {
         // Declare and instatiate button to create new account
         Button btnCreate = findViewById(R.id.btn_create_user);
         //When button is clicked
-        btnCreate.setOnClickListener((View v) -> {
-            // Instantiate EditText elements
-            etEmail = findViewById(R.id.create_user_email);
-            etPassword = findViewById(R.id.create_password_input);
-            etConfirmPassword = findViewById(R.id.confirm_password_input);
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Instantiate EditText elements
+                etEmail = findViewById(R.id.create_user_email);
+                etPassword = findViewById(R.id.create_password_input);
+                etConfirmPassword = findViewById(R.id.confirm_password_input);
 
-            //Check that the two passwords entered match
-            if(etPassword.getText().toString().equals(etConfirmPassword.getText().toString())){
-                // Call class method to create the account
-                createAccount(etEmail.getText().toString(), etPassword.getText().toString());
-            } else {
-                // Show message if the passwords not match
-                showTopToast(RegisterActivity.this,
-                        "Passwords don't match");
+                //Check that the two passwords entered match
+                if (etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
+                    // Call class method to create the account
+                    createAccount(etEmail.getText().toString(), etPassword.getText().toString());
+                } else {
+                    // Show message if the passwords not match
+                    showTopToast(RegisterActivity.this,
+                            "Passwords don't match");
+                }
             }
         });
     }

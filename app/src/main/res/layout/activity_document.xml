@@ -15,6 +15,18 @@
             android:padding="10dp">
 
             <TextView
+                android:id="@+id/verification_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Awaiting verification"
+                android:lineHeight="10dp"
+                android:gravity="center_vertical"
+                android:paddingStart="5dp"
+                android:textColor="@color/alertYellowTxt"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/rounded_verifcation_yellow"/>
+
+            <TextView
                 android:id="@+id/session_id_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -123,6 +135,12 @@
                 android:text="@string/attachments"
                 android:textSize="20dp"
                 android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/document_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"></LinearLayout>
 
             <TextView
                 android:id="@+id/attachments_text"

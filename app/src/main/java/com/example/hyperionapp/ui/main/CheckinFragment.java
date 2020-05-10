@@ -16,6 +16,7 @@
 package com.example.hyperionapp.ui.main;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,17 +26,21 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.hyperionapp.CodeActivity;
 import com.example.hyperionapp.EncryptionService;
+import com.example.hyperionapp.MainActivity;
 import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
 import com.example.hyperionapp.Checkin;
@@ -73,6 +78,7 @@ public class CheckinFragment extends Fragment {
     String duration;
     String symptoms;
     String preConditions;
+    String hospital;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private PatientDetails patientModel;
     private Checkin snapShotPayload = null;
@@ -86,6 +92,7 @@ public class CheckinFragment extends Fragment {
     private static final String TAG = "MainActivity";
     private RegisterActivity reg = new RegisterActivity();
     Gson gson = new Gson();
+    Switch swAutoShare;
 
     @Nullable
     @Override
@@ -94,12 +101,10 @@ public class CheckinFragment extends Fragment {
         final View v = inflater.inflate(R.layout.fragment_checkin, container, false);
         // Instantiate viewModel
         patientModel = ViewModelProviders.of(getActivity()).get(PatientDetails.class);
-
         // snapShotPayload stores the latest data snapshot of the current session
         // to listen for updates from the FirebaseFirestore for the ongoing session
         // Retrieving the latest snapshot from the viewModel
         snapShotPayload = patientModel.getLatestSnapshot();
-
         // If there is an ongoing session
         if(!"".equals(patientModel.getCurrentSessionID())){
             //Hide the checkin form and show the checked in message
@@ -108,7 +113,7 @@ public class CheckinFragment extends Fragment {
             // If there the payload is not empty and session_shared is in status 1
             // Show a message that it was requested to share the data
             // 1 = Share data requested, but not shared yet
-            if(snapShotPayload != null && snapShotPayload.getSession_shared() == 1){
+            if((snapShotPayload != null && snapShotPayload.getSession_shared() == 1)){
                 showShareData(v);
             }
         }
@@ -117,8 +122,11 @@ public class CheckinFragment extends Fragment {
         EditText etSymptoms = v.findViewById(R.id.symptoms_text);
         Spinner pain_scale_spinner = v.findViewById(R.id.pain_scale_spinner);
         Spinner duration_spinner = v.findViewById(R.id.duration_spinner);
+        Spinner hospital_spinner = v.findViewById(R.id.hospital_spinner);
         Button bSubscribe = v.findViewById(R.id.subscribeButton);
         Button bEndSession = v.findViewById(R.id.endSession);
+        Button bShareNow = v.findViewById(R.id.share_now);
+        swAutoShare = v.findViewById(R.id.auto_share_data);
 
         // Add dropdown options from array and render spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
@@ -131,6 +139,12 @@ public class CheckinFragment extends Fragment {
                 R.array.duration_array, android.R.layout.simple_spinner_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         duration_spinner.setAdapter(adapter2);
+
+        // Add dropdown options from array and render spinner
+        ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getContext(),
+                R.array.hospital_array, android.R.layout.simple_spinner_item);
+        adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        hospital_spinner.setAdapter(adapter3);
 
         // Reference: https://developer.android.com/guide/topics/ui/controls/spinner#SelectListener
         // Define the functionality that is triggered when an item is selected from
@@ -160,12 +174,25 @@ public class CheckinFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
+        // Define the functionality that is triggered when an item is selected from
+        // the spinner
+        hospital_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Add the selected option to a variable
+                hospital = parent.getItemAtPosition(position).toString();
+            }
+            // Optional method override if nothing is selected
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
         // Subscribe to FirebaseMessaging topic if the user clicks the "Check In" button
         bSubscribe.setOnClickListener((View view) -> {
             // Get value from the symptoms text field
             symptoms = etSymptoms.getText().toString();
             // If any of the required fields are empty
-            if ("".equals(symptoms) || "Select".equals(painScale) || "Select".equals(duration)){
+            if ("".equals(symptoms) || "Select".equals(painScale) || "Select".equals(duration) || "Select".equals(hospital)){
                 // Show error message
                 reg.showTopToast(getContext(), "Please fill in all of the fields.");
             } else {
@@ -193,10 +220,14 @@ public class CheckinFragment extends Fragment {
                                     preConditions = patientModel.getPreconditions();
                                     // Default setting for session_shared
                                     int session_shared = 0;
+                                    if(swAutoShare.isChecked()) {
+                                        session_shared = 2;
+                                    }
+
                                     // Declare and instantiate empty list of SessionDocuments
                                     List<SessionDocument> session_documents = new ArrayList<>();
                                     // Declare and instantiate new Checkin
-                                    Checkin checkin = new Checkin(sessionID, symptoms, duration, painScale, preConditions, session_shared, session_documents);
+                                    Checkin checkin = new Checkin(sessionID, symptoms, duration, painScale, preConditions, session_shared, hospital, session_documents);
                                     Log.d("CHECKIN DATA", checkin.getSession_checkin() + "");
                                     // Add session to FirebaseFirestore
                                     //https://firebase.google.com/docs/database/android/read-and-write
@@ -218,11 +249,21 @@ public class CheckinFragment extends Fragment {
                                     showCheckedIn(v);
                                     // Call class method to listen for data changes in
                                     // FirebaseFirestore for the ongoing session
-                                    updateFromSnapshot(db, patientModel, sessionID, v);
+                                    //updateFromSnapshot(db, patientModel, sessionID, v);
+                                    Intent mainIntent = new Intent(getActivity(), MainActivity.class);
+                                    startActivity(mainIntent);
                                 }
                             }
                         });
             }
+        });
+
+        bShareNow.setOnClickListener((View view)->{
+            Intent codeIntent = new Intent(getActivity(), CodeActivity.class);
+            codeIntent.putExtra("session_id", patientModel.getCurrentSessionID());
+            codeIntent.putExtra("session_documents", "");
+            startActivity(codeIntent);
+
         });
 
         // Change the session_shared value to 3 and end the session
@@ -248,9 +289,11 @@ public class CheckinFragment extends Fragment {
                 public void onSuccess(Void aVoid) {
                     // Reset the view to the original by hiding the Checked-in and Share Data
                     // views and showing the Checkin form
-                    hideCheckedIn(v);
-                    showCheckin(v);
-                    hideShareData(v);
+                    //hideCheckedIn(v);
+                    //showCheckin(v);
+                    //hideShareData(v);
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    startActivity(intent);
                 }
             });
         });
@@ -415,6 +458,7 @@ public class CheckinFragment extends Fragment {
                         // Reference: https://mkyong.com/java/how-do-convert-java-object-to-from-json-format-gson-api/
                         // Parse the new snapshot from JSON to Checkin with GSON.fromJson
                         Checkin c = gson.fromJson(jsonSnapshot.toString(), Checkin.class);
+                        Log.d("SNAPSHOT SHARED", ""+c.getSession_shared());
                         // Manually setting session_checkin
                         c.setSession_checkin(session_checkin);
                         // Update latestSnapshot in the viewModel
@@ -422,10 +466,6 @@ public class CheckinFragment extends Fragment {
                         // Nobody, but the user should be able to change the session shared to 2 (=shared)
                         // Therefore, if the session_shared from the
 
-                        if(c.getSession_shared() == 2) {
-                            Checkin originalSession = patientModel.findSessionById(sessionID);
-                            c.setSession_shared(originalSession.getSession_shared());
-                        }
                         // Update the viewModel with the new information from the snapshot and
                         // save it to the encrypted local file
                         Checkin news =  patientModel.updateSessionById(c);
@@ -451,6 +491,8 @@ public class CheckinFragment extends Fragment {
                             patientModel.setCurrentSessionID("");
                             patientModel.setLatestSnapshot(null);
                         }
+                        Intent mainIntent = new Intent(getActivity(), MainActivity.class);
+                        startActivity(mainIntent);
                     }
                 } else {
                     // If the snapshot is null or does not exist write error to log

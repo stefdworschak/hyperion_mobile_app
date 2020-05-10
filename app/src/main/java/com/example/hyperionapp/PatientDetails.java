@@ -49,6 +49,10 @@ public class PatientDetails extends ViewModel {
     String currentSessionID;
     Checkin latestSnapshot;
 
+    // Hash validation
+    Date lastValidated;
+    List<String> validatedHashes;
+
     public PatientDetails() {
         //Personal Details
         this.name = new ObservableField<>();
@@ -82,6 +86,8 @@ public class PatientDetails extends ViewModel {
         this.patientSessions = new ArrayList<Checkin>();
         this.currentSessionID = "";
         this.latestSnapshot = null;
+        this.lastValidated = null;
+        this.validatedHashes = new ArrayList<>();
     }
 
     public Checkin findSessionById(String sessionID){
@@ -385,4 +391,12 @@ public class PatientDetails extends ViewModel {
     public Checkin getLatestSnapshot() { return latestSnapshot; }
 
     public void setLatestSnapshot(Checkin latestSnapshot) { this.latestSnapshot = latestSnapshot; }
+
+    public Date getLastValidated() { return lastValidated; }
+
+    public void setLastValidated(Date lastValidated) { this.lastValidated = lastValidated; }
+
+    public List<String> getValidatedHashes() { return validatedHashes; }
+
+    public void setValidatedHashes(List<String> validatedHashes) { this.validatedHashes = validatedHashes; }
 }
