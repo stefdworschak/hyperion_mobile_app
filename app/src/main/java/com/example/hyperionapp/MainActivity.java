@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             if (e != null) {
                 return;
             }
+                Log.d("SNAPSHOT UPDATE", "Yes");
             // If the snapshot is not null and the snapshot exists
             if (snapshot != null && snapshot.exists()) {
                 // Save the snapshot in a variable
@@ -224,15 +225,15 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                     // Update the viewModel with the new information from the snapshot and
                     // save it to the encrypted local file
                     Checkin news =  patientModel.updateSessionById(c);
-                    encryption.saveData(patientModel, SYMMETRIC_ALIAS, MainActivity.this, DATA_FILENAME);
-
                     // If the session ended
                     if(c.getSession_shared() == 3){
                         // Clear currentSessionID and latestSnapshot
                         // TODO: remove the registration
+                        Log.d("SNAPSHOT UPDATE", c.getSession_shared()+"");
                         patientModel.setCurrentSessionID("");
                         patientModel.setLatestSnapshot(null);
                     }
+                    encryption.saveData(patientModel, SYMMETRIC_ALIAS, MainActivity.this, DATA_FILENAME);
                 }
             } else {
                 // If the snapshot is null or does not exist write error to log

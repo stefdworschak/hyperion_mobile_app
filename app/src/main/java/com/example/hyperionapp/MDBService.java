@@ -35,9 +35,13 @@ public class MDBService {
         // If the client is not configured yet, configure the client
         if(client == null) {
             // Load the configurations from the BuildConfig
-            client = Stitch.initializeDefaultAppClient(BuildConfig.MONGODB);
-            mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
-            coll = mongoClient.getDatabase(BuildConfig.MONGODB_DB).getCollection(BuildConfig.MONGODB_COL);
+            try {
+                client = Stitch.initializeDefaultAppClient(BuildConfig.MONGODB);
+                mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb-atlas");
+                coll = mongoClient.getDatabase(BuildConfig.MONGODB_DB).getCollection(BuildConfig.MONGODB_COL);
+            } catch(Exception e){
+                Log.d("MONGO Exception", e.getMessage());
+            }
         }
     }
 
@@ -92,5 +96,11 @@ public class MDBService {
                 task.getException().printStackTrace();
             }
         });
+    }
+
+    public void close(){
+        this.client = null;
+        this.mongoClient = null;
+        this.coll = null;
     }
 }

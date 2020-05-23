@@ -32,14 +32,17 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.hyperionapp.BuildConfig;
 import com.example.hyperionapp.CodeActivity;
 import com.example.hyperionapp.EncryptionService;
+import com.example.hyperionapp.MDBService;
 import com.example.hyperionapp.MainActivity;
 import com.example.hyperionapp.PatientDetails;
 import com.example.hyperionapp.R;
@@ -92,7 +95,6 @@ public class CheckinFragment extends Fragment {
     private static final String TAG = "MainActivity";
     private RegisterActivity reg = new RegisterActivity();
     Gson gson = new Gson();
-    Switch swAutoShare;
 
     @Nullable
     @Override
@@ -109,12 +111,14 @@ public class CheckinFragment extends Fragment {
         if(!"".equals(patientModel.getCurrentSessionID())){
             //Hide the checkin form and show the checked in message
             hideCheckin(v);
-            showCheckedIn(v);
+            showCheckedIn(v, patientModel.getLatestSnapshot().getHospital());
             // If there the payload is not empty and session_shared is in status 1
             // Show a message that it was requested to share the data
             // 1 = Share data requested, but not shared yet
             if((snapShotPayload != null && snapShotPayload.getSession_shared() == 1)){
                 showShareData(v);
+            } else if((snapShotPayload != null && snapShotPayload.getSession_shared() == 2)){
+                showDataShared(v);
             }
         }
 
@@ -126,7 +130,6 @@ public class CheckinFragment extends Fragment {
         Button bSubscribe = v.findViewById(R.id.subscribeButton);
         Button bEndSession = v.findViewById(R.id.endSession);
         Button bShareNow = v.findViewById(R.id.share_now);
-        swAutoShare = v.findViewById(R.id.auto_share_data);
 
         // Add dropdown options from array and render spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
@@ -220,18 +223,13 @@ public class CheckinFragment extends Fragment {
                                     preConditions = patientModel.getPreconditions();
                                     // Default setting for session_shared
                                     int session_shared = 0;
-                                    if(swAutoShare.isChecked()) {
-                                        session_shared = 2;
-                                    }
-
                                     // Declare and instantiate empty list of SessionDocuments
                                     List<SessionDocument> session_documents = new ArrayList<>();
                                     // Declare and instantiate new Checkin
                                     Checkin checkin = new Checkin(sessionID, symptoms, duration, painScale, preConditions, session_shared, hospital, session_documents);
-                                    Log.d("CHECKIN DATA", checkin.getSession_checkin() + "");
                                     // Add session to FirebaseFirestore
                                     //https://firebase.google.com/docs/database/android/read-and-write
-                                    setDocument(db, checkin);
+                                    setDocument(db, checkin, user_id);
                                     // Add new Checkin to existing Sessions from model
                                     List<Checkin> sessions = patientModel.getPatientSessions();
                                     sessions.add(checkin);
@@ -243,15 +241,15 @@ public class CheckinFragment extends Fragment {
                                     patientModel.setCurrentSessionID(sessionID);
                                     patientModel.setLatestSnapshot(checkin);
                                     String saveMsg = encryption.saveData(patientModel, SYMMETRIC_ALIAS, getContext(), DATA_FILENAME);
-
                                     // Hide the checkin form and show the checked-in view
                                     hideCheckin(v);
-                                    showCheckedIn(v);
+                                    showCheckedIn(v, patientModel.getLatestSnapshot().getHospital());
                                     // Call class method to listen for data changes in
                                     // FirebaseFirestore for the ongoing session
                                     //updateFromSnapshot(db, patientModel, sessionID, v);
                                     Intent mainIntent = new Intent(getActivity(), MainActivity.class);
                                     startActivity(mainIntent);
+
                                 }
                             }
                         });
@@ -281,7 +279,7 @@ public class CheckinFragment extends Fragment {
 
             // Create new HashMap to update the session_shared value in the FirebaseFirestore
             Map<String, Object> sharing = new HashMap<>();
-            sharing.put("session_shared", "3");
+            sharing.put("session_shared", 3);
             // Update the session with the new session_shared HashMap
             DocumentReference document = db.collection(COLLECTION_NAME).document(session_id);
             document.update(sharing).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -292,6 +290,7 @@ public class CheckinFragment extends Fragment {
                     //hideCheckedIn(v);
                     //showCheckin(v);
                     //hideShareData(v);
+                    Log.d("FIREBASE UPDATE", "UPDATED");
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);
                 }
@@ -332,7 +331,7 @@ public class CheckinFragment extends Fragment {
         svCheckedIn.setVisibility(View.GONE);
     }
 
-    public static void showCheckedIn(View v){
+    public static void showCheckedIn(View v, String hospital){
         /* Method to show the checked-in form
          * @param View v The view which should be shown
          * @return void
@@ -340,6 +339,13 @@ public class CheckinFragment extends Fragment {
         // Select view by id and set visibility to visible
         ScrollView svCheckedIn = v.findViewById(R.id.checkedin_view);
         svCheckedIn.setVisibility(View.VISIBLE);
+        TextView tvCheckedin = v.findViewById(R.id.confirmation_message);
+        tvCheckedin.setText("Checked-in at " + hospital);
+    }
+
+    public  static void showDataShared(View v){
+        LinearLayout lyDataShared = v.findViewById(R.id.data_shared);
+        lyDataShared.setVisibility(View.VISIBLE);
     }
 
     public static void hideShareData(View v){
@@ -397,13 +403,12 @@ public class CheckinFragment extends Fragment {
         return randID;
     }
 
-    public static void setDocument(FirebaseFirestore db, Checkin checkin) {
+    public static void setDocument(FirebaseFirestore db, Checkin checkin, String user_id) {
         /* Method to handle saving a new Checkin to the FireStore database
          * @param FirebaseFirestore db The FirebaseFirestore instance
          * @param Checkin checkin The new Checkin to be saved
          * @return void
          */
-
         // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#android
         // Retrieve the checkins collection, create a new document with the new sessionID
         // as its name and the Checkin its value
@@ -474,11 +479,11 @@ public class CheckinFragment extends Fragment {
                         // Update the view based on the status
                         if (c.getSession_shared() == 0 || c.getSession_shared() == 2) {
                             hideCheckin(v);
-                            showCheckedIn(v);
+                            showCheckedIn(v, patientModel.getLatestSnapshot().getHospital());
                         } else if (c.getSession_shared() == 1) {
                             showShareData(v);
                             hideCheckin(v);
-                            showCheckedIn(v);
+                            showCheckedIn(v, patientModel.getLatestSnapshot().getHospital());
                         } else {
                             showCheckin(v);
                             hideCheckedIn(v);

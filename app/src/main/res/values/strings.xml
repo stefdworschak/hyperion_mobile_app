@@ -97,6 +97,8 @@
     <string name="error_email_not_verified">You have not verified your email address yet.</string>
     <string name="error_login_failed">Login failed.</string>
     <string name="error_fill_in_all_fields">Please make sure that you have filled in all of the required fields.</string>
+    <string name="data_access_requested_do_you_want_to_sharen_now">Data access requested. Do you want to sharen now?</string>
+    <string name="data_already_shared">You shared your data. Waiting for the diagnosis.</string>
 
     <string-array name="bloodtype_array">
         <item>A+</item>
@@ -141,7 +143,7 @@
         <item>Ennis Hospital: UL Hospitals</item>
         <item>Galway University Hospitals</item>
         <item>Kerry General Hospital</item>
-        <item>Letterkenny University Hospital</item>
+        <item>Letterkenny University Hospital</item>
         <item>Lourdes Orthopaedic Hospital, Kilcreene</item>
         <item>Louth County Hospital, Dundalk</item>
         <item>Mallow General Hospital</item>

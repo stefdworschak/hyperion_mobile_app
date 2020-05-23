@@ -119,14 +119,10 @@
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:background="@drawable/dropdown_shape_default2"
+                            android:layout_marginBottom="16dp"
                             android:padding="12dp"
                             android:paddingStart="12dp" />
 
-                        <Switch
-                            android:id="@+id/auto_share_data"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/share_data_automatically" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -218,7 +214,7 @@
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/rounded_textview2"
                             android:padding="20dp"
-                            android:text="@string/successful_checkin"
+                            android:text="@string/data_access_requested_do_you_want_to_sharen_now"
                             android:textColor="@color/alertYellowTxt"
                             android:textSize="24dp" />
 
@@ -242,6 +238,29 @@
 
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:id="@+id/data_shared"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="0dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/data_shared_msg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="32dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@drawable/rounded_textview2"
+                            android:padding="20dp"
+                            android:text="@string/data_already_shared"
+                            android:textColor="@color/yellowDarkBorder"
+                            android:textSize="24dp" />
+
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/endSession"
                         style="@style/Widget.MaterialComponents.Button"
@@ -261,6 +280,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </ScrollView>
+
 
     </LinearLayout>
     </layout>

@@ -32,12 +32,14 @@ android {
             // Reference: https://developer.android.com/studio/build/gradle-tips#share-custom-fields-and-resource-values-with-your-app-code
             // Reference: https://stackoverflow.com/a/47553410
             buildConfigField("String", 'MONGODB', "\"${MongoDBAppClient}\"")
+            buildConfigField("String", 'MONGODB2', "\"${MongoDBAppClient2}\"")
             buildConfigField("String", 'MONGODB_DB', "\"${MongoDB_Database}\"")
             buildConfigField("String", 'MONGODB_COL', "\"${MongoDB_Collection}\"")
             buildConfigField("String", 'VALIDATION_API', "\"${ValidationAPI}\"")
         }
         debug {
             buildConfigField("String", 'MONGODB', "\"${MongoDBAppClient}\"")
+            buildConfigField("String", 'MONGODB2', "\"${MongoDBAppClient2}\"")
             buildConfigField("String", 'MONGODB_DB', "\"${MongoDB_Database}\"")
             buildConfigField("String", 'MONGODB_COL', "\"${MongoDB_Collection}\"")
             buildConfigField("String", 'VALIDATION_API', "\"${ValidationAPI}\"")

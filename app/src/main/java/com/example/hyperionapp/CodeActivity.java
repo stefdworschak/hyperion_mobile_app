@@ -108,7 +108,7 @@ public class CodeActivity extends AppCompatActivity {
         // Change the session_shared to 2 (=shared)
         // This should be the only place where this is possible unless the user has
         // "Share data now" enabled when creating the session
-        sharing.put("session_shared", "2");
+        sharing.put("session_shared", 2);
         // Create the data key field, setting it equal to the id of their FirebaseUser
         sharing.put("data_key", user_id);
 
@@ -136,7 +136,30 @@ public class CodeActivity extends AppCompatActivity {
 
         shareEncrypted(json_data, sharing);
     }
+
     public void shareEncrypted(String json_data, Map<String, Object> sharing){
+        // Call method to update Mongo
+        updateMongoDB(json_data, session_id);
+        // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+        // Update the FirebaseFirestore document with the updated information
+        DocumentReference document = db.collection(COLLECTION_NAME).document(session_id);
+        document.update(sharing)
+                .addOnSuccessListener((Void aVoid) -> {
+                    // If FirebaseFirestore document was successfully udpdated
+                    // Redirect to the MainActivity
+                    Intent go = new Intent(CodeActivity.this, MainActivity.class);
+                    //go.putExtra("viewpager_position", 2);
+                    startActivity(go);
+                    finish();
+                })
+                .addOnFailureListener((@NonNull Exception e) -> {
+                    // If an error occurred write and error to the log
+                    Log.w(TAG, "Error updating Sharing Settings", e);
+                });
+    }
+
+    public void updateMongoDB(String json_data, String session_id){
+
         // Declare and instantiate a new variable that will store the re-encrypted data
         String enc = "";
         try {
@@ -149,20 +172,6 @@ public class CodeActivity extends AppCompatActivity {
 
         // Store the encrypted data under the FirebaseUser id in MongoDB
         mongo.updateData(""+user_id, enc);
-        // Reference: https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-        // Update the FirebaseFirestore document with the updated information
-        DocumentReference document = db.collection(COLLECTION_NAME).document(session_id);
-        document.update(sharing)
-                .addOnSuccessListener((Void aVoid) -> {
-                    // If FirebaseFirestore document was successfully udpdated
-                    // Redirect to the MainActivity
-                    Intent go = new Intent(CodeActivity.this, MainActivity.class);
-                    //go.putExtra("viewpager_position", 2);
-                    startActivity(go);
-                })
-                .addOnFailureListener((@NonNull Exception e) -> {
-                    // If an error occurred write and error to the log
-                    Log.w(TAG, "Error updating Sharing Settings", e);
-                });
+        //mongo.close();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.hyperionapp;
 
+import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,9 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -65,8 +63,10 @@ public class MyFirebaseService extends FirebaseMessagingService {
             // Check what kind of message it is
             // "New Session" indicates a future session that was scheduled during the
             // diagnosis
+
             if(session_documents.equals("\"New Session\"")){
                 // Call method to schedule future session
+                Log.d("NEW SESSION", "YES");
                 scheduleFutureSession();
             } else {
                 // Call method to send notification to app
@@ -93,7 +93,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
             // Instantiate a new Checkin instance with the follow-up information
             future_session = new Checkin(sessionJSON.get("session_id").toString(), session_details.get("symptoms").toString(),
                     session_details.get("symptoms_duration").toString(), session_details.get("pre_conditions").toString(),
-                    session_details.get("pain_scale").toString(), 0,sessionJSON.get("hospital").toString(), documents);
+                    session_details.get("pain_scale").toString(), 0, "", documents);
             future_session.setSession_checkin(session_checkin);
         } catch(JSONException jEx){
             // If an error occurs print the stackTrace
@@ -101,7 +101,12 @@ public class MyFirebaseService extends FirebaseMessagingService {
         } catch(ParseException pEx){
             // If an error occurs print the stackTrace
             pEx.getStackTrace();
+        } catch(Exception e){
+            e.printStackTrace();
         }
+        Log.d("NEW SESSION", "YES");
+        Log.d("NEW SESSION USER", user_id);
+        Log.d("NEW SESSION NULL", future_session.toString() + "");
         // If the future session did not trigger an error and the user_id is present
         if(future_session != null && !user_id.equals("")) {
             // Declare and instantiate method internal variables
@@ -109,6 +114,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
             final String DATA_FILENAME = user_id + "_hyperion.enc";
             // Read the user's saved encrypted file contents from the App storage
             String encrypted_data = encryption.basicRead(MyFirebaseService.this, DATA_FILENAME);
+            Log.d("NEW SESSION ENC", encrypted_data);
             // Decrypt the data retrieved from the file using the Symmetric key from the Android
             // Keystore
             String json_data = encryption.decryptSymmetric(encrypted_data, SYMMETRIC_ALIAS);
@@ -117,6 +123,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
             // Check if the decrypted data is null (this happens if the data is empty/
             // or there was an error in decrypting the data
             if(json_data != null) {
+                Log.d("ADD NEW SESSION", "TRUE");
                 // Reference: https://mkyong.com/java/how-do-convert-java-object-to-from-json-format-gson-api/
                 // Use the GSON class to parse the decrypted data from JSON String
                 // to a new PatientDetails instance
@@ -124,7 +131,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
                 List<Checkin> sessions = p.getPatientSessions();
                 sessions.add(future_session);
                 // Save data to encrypted local file
-                encryption.saveData(p, SYMMETRIC_ALIAS, MyFirebaseService.this, DATA_FILENAME);
+                String msg = encryption.saveData(p, SYMMETRIC_ALIAS, MyFirebaseService.this, DATA_FILENAME);
             }
         }
     }
@@ -176,7 +183,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
             // Create new notification channel and set attributes
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "hyperion_notification",
                     NotificationManager.IMPORTANCE_HIGH);
-            notificationChannel.setAllowBubbles(true);
+            //notificationChannel.setAllowBubbles(true);
             notificationChannel.setBypassDnd(true);
             // Add notification channel to notification manager
             notificationManager.createNotificationChannel(notificationChannel);

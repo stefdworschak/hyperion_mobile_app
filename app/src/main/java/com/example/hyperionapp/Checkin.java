@@ -14,6 +14,7 @@ public class Checkin {
     private int session_shared;
     private String hospital;
     private List<SessionDocument> session_documents;
+    private String data_key;
 
 
     public Checkin(String session_id, String symptoms, String symptoms_duration, String pain_scale, String pre_conditions, int session_shared, String hospital,
@@ -29,6 +30,7 @@ public class Checkin {
         this.session_shared = session_shared;
         this.hospital = hospital;
         this.session_documents = session_documents;
+        this.data_key = "";
     }
 
     public String getSession_id() {
@@ -78,5 +80,13 @@ public class Checkin {
 
     public void setHospital(String hospital) {
         this.hospital = hospital;
+    }
+
+    public String getData_key() {
+        return data_key;
+    }
+
+    public void setData_key(String data_key) {
+        this.data_key = data_key;
     }
 }
