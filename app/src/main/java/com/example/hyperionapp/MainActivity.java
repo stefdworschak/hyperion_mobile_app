@@ -1,6 +1,7 @@
 package com.example.hyperionapp;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     {
         super.onCreate(savedInstanceState);
         // Check if user is logged in
-        login.isAuthenticated(MainActivity.this, user, false);
+        isAuthenticated(getApplicationContext(), user, true);
         // Grab the incoming intent in order to display the right fragment
         Intent intent = getIntent();
         // viewpager_position tells the Activity which Fragment to display based on the order
@@ -232,6 +233,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                         Log.d("SNAPSHOT UPDATE", c.getSession_shared()+"");
                         patientModel.setCurrentSessionID("");
                         patientModel.setLatestSnapshot(null);
+                        Intent mainIntent = new Intent(MainActivity.this, MainActivity.class);
+                        startActivity(mainIntent);
                     }
                     encryption.saveData(patientModel, SYMMETRIC_ALIAS, MainActivity.this, DATA_FILENAME);
                 }
@@ -242,4 +245,38 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         });
     }
 
+
+    public void isAuthenticated(Context context, FirebaseUser user, boolean redirect){
+        /* Method to check if user is authenticated
+         * @param Context context The context (activity the method is called from)
+         * @param FirebaseUser user The FirebaseUser which should be validated
+         * @param boolean redirect True if the user should be redirected to MainActivity after success
+         * @return boolean
+         */
+        RegisterActivity reg = new RegisterActivity();
+        // Reference: https://firebase.google.com/docs/auth/android/manage-users#get_the_currently_signed-in_user
+        // If the user is authenticated
+        if(user != null){
+            // Reference: https://firebase.google.com/docs/auth/android/manage-users#get_a_users_profile
+            // If the user's email is verified
+            if(!user.isEmailVerified()){
+                // If the email is not verified logout and redirect to the LoginActivity
+                mAuth.signOut();
+                Intent loginActivity = new Intent(context, LoginActivity.class);
+                startActivity(loginActivity);
+                // Show error message
+                reg.showTopToast(MainActivity.this,
+                        getString(R.string.error_email_not_verified));
+            }
+        } else {
+            if(redirect) {
+                // If the user is not authenticated redirect to the LoginActivity
+                Intent loginActivity = new Intent(context, LoginActivity.class);
+                startActivity(loginActivity);
+                // Show error message
+                reg.showTopToast(MainActivity.this,
+                        getString(R.string.error_login_failed));
+            }
+        }
+    }
 }

@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                         // Grab the logged-in user from the existing FirebaseAuth Instance
                         FirebaseUser user = mAuth.getCurrentUser();
                         // Validate user is authenticated and redirect accordingly
-                        isAuthenticated(LoginActivity.this, user, true);
+                        isAuthenticated(getApplicationContext(), user, true);
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "Login NOT successful!", task.getException());
@@ -153,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
             if(user.isEmailVerified()){
                 if(redirect) {
                     // Redirect to the MainActivity
-                    Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                    Intent mainActivity = new Intent(context, MainActivity.class);
                     startActivity(mainActivity);
                 }
             } else {
