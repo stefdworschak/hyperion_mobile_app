@@ -79,7 +79,12 @@ public class CodeActivity extends AppCompatActivity {
             String userCode = encryption.decryptSymmetric(encrypted_data, CODE_ALIAS);
 
             // If the entered code is the same as the saved code
-            if(userCode.equalsIgnoreCase(etCode.getText().toString())) {
+            if(userCode == null) {
+                reg.showTopToast(getApplicationContext(),
+                        "No code is configured! Please create a new 2-factor authentication code.");
+            }
+            else
+                if(userCode.equalsIgnoreCase(etCode.getText().toString())) {
                 // Call the method to share the user data
                 shareUserData(session_id);
             } else {

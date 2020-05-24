@@ -34,12 +34,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,10 +153,22 @@ public class SingleSessionActivity extends AppCompatActivity {
                     fin = new FileInputStream(localFile);
                     byte[] fileContent = new byte[(int)localFile.length()];
                     fin.read(fileContent);
-                    // Create a hash from the file
-                    String hash = Hashing.sha256()
-                            .hashString(new String(fileContent, "utf-8"), StandardCharsets.UTF_8)
-                            .toString();
+
+                    String hash = "";
+                    try{
+                        // Create a hash from the file*/
+                        MessageDigest md = MessageDigest.getInstance("SHA-256");
+                        String text = "hello";
+                        md.update(fileContent);
+                        byte[] digest = md.digest();
+                        StringBuffer sb = new StringBuffer();
+                        for (int i = 0; i < digest.length; i++) {
+                            sb.append(String.format("%02x", digest[i] & 0xFF));
+                        }
+                        hash = sb.toString();
+                    } catch(NoSuchAlgorithmException noAlg) {
+                        noAlg.printStackTrace();
+                    }
                     // Check if the document to validate the session record or an attachement
                     // and call the respective methods to display them
                     if(doctype.equals("session_record")){
@@ -167,13 +183,15 @@ public class SingleSessionActivity extends AppCompatActivity {
                         hashes.add(gson.toJson(doc, SessionDocument.class));
                         checkHashes(hashes, hash);
                     } else {
+                        Log.d("ORIGINAL HASH", doc.getDocument_hash());
+                        Log.d("NEW HASH", hash);
                         Log.d("STORAGE REFERENCE", "WRONG HASH");
                     }
                 } catch(UnsupportedEncodingException ex) {
                     ex.printStackTrace();
-                } catch(FileNotFoundException fileNotFoundEx) {
+                } /* catch(FileNotFoundException fileNotFoundEx) {
                     fileNotFoundEx.printStackTrace();
-                } catch(IOException ioEx) {
+                }*/ catch(IOException ioEx) {
                     ioEx.printStackTrace();
                 }
             }).addOnFailureListener((@NonNull Exception exception) -> {
